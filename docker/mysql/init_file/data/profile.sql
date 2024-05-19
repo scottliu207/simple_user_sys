@@ -1,0 +1,2 @@
+-- INSERT INTO `user_db`.`profile` (`detail`) VALUES
+-- ('{}');
