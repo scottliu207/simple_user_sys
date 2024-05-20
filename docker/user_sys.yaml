@@ -1,0 +1,18 @@
+version: '3.9'
+services:
+  user-mysql:
+    image: "mysql:8.0.33"
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_HOST: "%"
+    volumes:
+      - ./mysql:/etc/mysql/conf.d
+      - ./mysql/init_file:/docker-entrypoint-initdb.d
+      - ./mysql/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh
+    networks:
+      - user-network
+networks:
+  user-network:
+    driver: bridge
