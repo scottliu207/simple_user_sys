@@ -1,8 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import * as user from '../dao/user';
 import { BaseUser } from '../model/user_profile';
+import { SignUpResult } from '../model/response';
 import { SignUpRequest } from '../model/request';
 import { hashPassword } from '../utils/hash';
+import { ErrorCode } from '../err/error';
+import { responseHandler } from '../utils/res_handler';
 
 /**
  * Handles user sign-up.
@@ -15,27 +18,31 @@ export async function signUp(req: Request, res: Response, next: NextFunction): P
     try {
         const { email, password } = req.body as SignUpRequest
         if (!email) {
-            res.json("Email is required.")
+            res.json(responseHandler(ErrorCode.InvalidRequest, 'Email is required.'))
             return
         }
 
         if (!password) {
-            res.json("Password is required.")
+            res.json(responseHandler(ErrorCode.InvalidRequest, 'Password is required.'))
             return
         }
 
         const existedUser = await user.get(email)
         if (existedUser) {
-            res.json("Email already exists.")
-            return 
+            res.json(responseHandler(ErrorCode.AccountAlreadyExists, 'Email already exists.'))
+            return
         }
 
         const hashedPassword = await hashPassword(password)
         const profile = new BaseUser(email, hashedPassword)
         const userId = await profile.signup()
 
-        res.json('User has created successfully, UserId: ' + userId);
+        const result: SignUpResult = {
+            userId: userId,
+        }
+        res.json(responseHandler(ErrorCode.SUCCESS, '', result))
+
     } catch (error: unknown) {
-        res.json("Error occured, " + error)
+        res.json(responseHandler(ErrorCode.SomethingWentWrong, 'Error occured,' + error))
     }
 };

@@ -1,4 +1,6 @@
 export enum ErrorCode {
+    // Success
+    SUCCESS = 0,
     // Bad Request
     InvalidRequest = 1000,
     InvalidMethod = 1001,
