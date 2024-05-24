@@ -1,6 +1,7 @@
 import { ErrorCode } from "../err/error";
 
-export interface Response {
+export interface Res {
+    httpCode: number;
     errorCode: ErrorCode;
     message: string;
     result: BaseResult;

@@ -4,8 +4,8 @@ import { BaseUser } from '../model/user_profile';
 import { SignUpResult } from '../model/response';
 import { SignUpRequest } from '../model/request';
 import { hashPassword } from '../utils/hash';
-import { ErrorCode } from '../err/error';
-import { responseHandler } from '../utils/res_handler';
+import { ErrDataAlreadyExists, ErrInvalidRequest, ErrSomethingWentWrong, ErrorCode, ErrNone } from '../err/error';
+import { resFormattor } from '../utils/res_formatter';
 
 /**
  * Handles user sign-up.
@@ -18,18 +18,18 @@ export async function signUp(req: Request, res: Response, next: NextFunction): P
     try {
         const { email, password } = req.body as SignUpRequest
         if (!email) {
-            res.json(responseHandler(ErrorCode.InvalidRequest, 'Email is required.'))
+            res.json(resFormattor(ErrInvalidRequest.newMsg('Email is required.')))
             return
         }
 
         if (!password) {
-            res.json(responseHandler(ErrorCode.InvalidRequest, 'Password is required.'))
+            res.json(resFormattor(ErrInvalidRequest.newMsg('Password is required.')))
             return
         }
 
         const existedUser = await user.get(email)
         if (existedUser) {
-            res.json(responseHandler(ErrorCode.AccountAlreadyExists, 'Email already exists.'))
+            res.json(resFormattor(ErrDataAlreadyExists.newMsg('Email already exists.')))
             return
         }
 
@@ -40,9 +40,10 @@ export async function signUp(req: Request, res: Response, next: NextFunction): P
         const result: SignUpResult = {
             userId: userId,
         }
-        res.json(responseHandler(ErrorCode.SUCCESS, '', result))
+        res.json(resFormattor(ErrNone, result))
 
     } catch (error: unknown) {
-        res.json(responseHandler(ErrorCode.SomethingWentWrong, 'Error occured,' + error))
+        console.log('Unkonwn error occured: ' + error)
+        res.json(resFormattor(ErrSomethingWentWrong))
     }
 };
