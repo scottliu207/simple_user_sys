@@ -1,10 +1,13 @@
 import express, { Router } from 'express'
 import { signUp } from "../controller/sign_up"
 import { login } from "../controller/login"
+import { refreshToken } from '../controller/refresh_token'
 
-const userRoute: Router = express.Router()
+const userRouteV1: Router = express.Router()
 
-userRoute.post("/signup", signUp)
-userRoute.post("/login", login)
+userRouteV1.post("/signup", signUp)
+userRouteV1.post("/login", login)
+// userRoute.post("/logout", logout)
+userRouteV1.post("/refresh/token", refreshToken)
 
-export { userRoute }
+export { userRouteV1 }

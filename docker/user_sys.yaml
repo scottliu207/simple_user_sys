@@ -1,6 +1,7 @@
 version: '3.9'
 services:
-  user-mysql:
+  mysql:
+    container_name: users-mysql
     image: "mysql:8.0.33"
     ports:
       - "3306:3306"
@@ -12,7 +13,14 @@ services:
       - ./mysql/init_file:/docker-entrypoint-initdb.d
       - ./mysql/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh
     networks:
-      - user-network
+      - users-network
+  redis:
+    container_name: users-redis
+    image: redis:7.2.5
+    ports:
+      - 6379:6379
+    networks:
+      - users-network
 networks:
-  user-network:
+  users-network:
     driver: bridge

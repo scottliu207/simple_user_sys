@@ -2,9 +2,12 @@ import { Request, Response, NextFunction } from 'express';
 import { LoginRequest } from '../model/request';
 import { ErrDataNotFound, ErrInvalidRequest, ErrNone, ErrSomethingWentWrong } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
-import * as user from '../dao/user'
-import { genShortToken } from '../utils/token';
+import * as user from '../dao/sql/user'
+import { genAccessToken, genRefreshToken } from '../utils/token';
 import { verifyPassword } from '../utils/hash';
+import { delAccessToken, setAccessToken } from '../dao/cache/access_token';
+import { delRefreshToken, setRefreshToken } from '../dao/cache/refresh_token';
+import { GetUserOption } from '../model/sql_option';
 
 /**
  * Handles user login.
@@ -25,12 +28,15 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
             return
         }
 
-        const existedUser = await user.get(email)
+        const getUserOpt: GetUserOption = {
+            email: email,
+        }
+
+        const existedUser = await user.get(getUserOpt)
         if (!existedUser) {
             res.json(resFormattor(ErrDataNotFound.newMsg('Email or password is incorrect.')))
             return
         }
-
 
         const match = await verifyPassword(password, existedUser.passphrase)
         if (!match) {
@@ -38,9 +44,16 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
             return
         }
 
-        const token = await genShortToken(existedUser.id)
+        await delAccessToken(existedUser.id)
+        await delRefreshToken(existedUser.id)
 
-        res.json(resFormattor(ErrNone, token))
+        const accessToken = await genAccessToken(existedUser.id)
+        const refreshToken = await genRefreshToken(existedUser.id)
+
+        await setAccessToken(existedUser)
+        await setRefreshToken(refreshToken.userId, refreshToken.token)
+
+        res.json(resFormattor(ErrNone, { accessToken: accessToken, refreshToken: refreshToken.token }))
 
     } catch (error: unknown) {
         console.log('Unkonwn error occured: ' + error)

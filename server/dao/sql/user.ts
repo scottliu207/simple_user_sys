@@ -1,5 +1,6 @@
-import { UserProfile } from '../model/user_profile'
-import { execute, query } from '../config/db'
+import { UserProfile } from '../../model/user_profile'
+import { execute, query } from '../../config/db'
+import { GetUserOption } from '../../model/sql_option'
 
 
 /** 
@@ -70,11 +71,11 @@ export async function create(input: UserProfile): Promise<void> {
 
 /** 
  * get a user's profile
- * @param {string } userId  - user id 
+ * @param {string } userId - user id 
  * @param {string } email  - user's email
  * @return {Promise<UserProfile|null>}
 */
-export async function get(email: string): Promise<UserProfile | null> {
+export async function get(option: GetUserOption): Promise<UserProfile | null> {
     let sql: string = ""
     let params: any[] = []
     let whereSql: string[] = []
@@ -88,14 +89,14 @@ export async function get(email: string): Promise<UserProfile | null> {
     sql += "   `update_time` "
     sql += " FROM `user_db`.`profile` "
 
-    // if (userId) {
-    //     whereSql.push(" `id` = ? ")
-    //     params.push(userId)
-    // }
+    if (option.userId) {
+        whereSql.push(" `id` = ? ")
+        params.push(option.userId)
+    }
 
-    if (email) {
+    if (option.email) {
         whereSql.push(" `email` = ? ")
-        params.push(email)
+        params.push(option.email)
     }
 
     if (whereSql.length == 0) {

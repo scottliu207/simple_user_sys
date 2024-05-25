@@ -1,6 +1,7 @@
 import { AccountType, UserStatus } from '../enum/user'
-import { create as createUser } from "../dao/user";
-import { genUUID } from '../utils/gen_uuid';
+import { create as createUser } from "../dao/sql/user";
+import { genUuid } from '../utils/gen_uuid';
+import { redis } from '../config/redis';
 
 export interface UserProfile {
     id: string;
@@ -22,7 +23,7 @@ export class BaseUser implements UserProfile {
     public updateTime?: Date;
 
     constructor(email: string, passphrase: string) {
-        this.id = genUUID()
+        this.id = genUuid()
         this.email = email
         this.passphrase = passphrase
         this.accountType = AccountType.EMAIL

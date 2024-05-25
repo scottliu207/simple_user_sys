@@ -13,6 +13,17 @@ const option: mysql.PoolOptions = {
 
 const pool = mysql.createPool(option)
 
+
+export async function pingMySql() {
+    try {
+        const conn = await pool.getConnection()
+        await conn.ping()
+        console.log('Successfully connect to MySQL.')
+    } catch (error: unknown) {
+        throw error
+    }
+}
+
 /**
  * Executes a SQL query.
  * @param {string} query - The SQL query to execute.
