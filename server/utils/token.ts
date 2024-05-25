@@ -1,4 +1,4 @@
-import jwt, { SignOptions } from 'jsonwebtoken'
+import jwt, { JsonWebTokenError, SignOptions } from 'jsonwebtoken'
 import { genUuid } from './gen_uuid'
 
 

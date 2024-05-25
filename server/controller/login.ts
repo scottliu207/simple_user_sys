@@ -19,12 +19,12 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
     try {
         const { email, password } = req.body as LoginRequest
         if (!email) {
-            res.json(resFormattor(ErrInvalidRequest.newMsg('Email is required.')))
+            res.json(resFormattor(ErrInvalidRequest.newMsg('email is required.')))
             return
         }
 
         if (!password) {
-            res.json(resFormattor(ErrInvalidRequest.newMsg('Password is required.')))
+            res.json(resFormattor(ErrInvalidRequest.newMsg('password is required.')))
             return
         }
 

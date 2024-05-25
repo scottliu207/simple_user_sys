@@ -22,14 +22,18 @@ export enum ErrorCode {
     INVALID_REQUEST = 1000,
     NOT_AUTHORIZED = 1002,
     DATA_ALREADY_EXISTS = 1003,
-    DATA_NOT_FOUND= 1004,
+    DATA_NOT_FOUND = 1004,
+    PASSWORD_NOT_MATCH = 1005,
+    INVALID_PASSWORD = 1006,
 
     // Server Error
     SOMETHING_WENT_WRONG = 3000,
 }
 
 export const ErrNone = new CustomError(200, ErrorCode.SUCCESS, '')
-export const ErrInvalidRequest = new CustomError(200, ErrorCode.INVALID_REQUEST, 'Invalid request.')
+export const ErrInvalidRequest = new CustomError(400, ErrorCode.INVALID_REQUEST, 'Invalid request.')
+export const ErrPasswordNotMatch = new CustomError(400, ErrorCode.PASSWORD_NOT_MATCH, 'Password must be as the same as confirm password.')
+export const ErrInvalidPassword = new CustomError(400, ErrorCode.INVALID_PASSWORD, 'Invalid password')
 export const ErrDataAlreadyExists = new CustomError(400, ErrorCode.DATA_ALREADY_EXISTS, 'Data already exists.')
 export const ErrDataNotFound = new CustomError(400, ErrorCode.DATA_NOT_FOUND, 'Data not found.')
 export const ErrNotAuthorized = new CustomError(400, ErrorCode.NOT_AUTHORIZED, 'Not authorized.')

@@ -12,7 +12,7 @@ export async function setAccessToken(user: UserProfile) {
     try {
         const key = getATKey(user.id)
         const expiresIn = ms(process.env.JWT_ACCESS_TOKEN_EXPIRE!)
-        await redis.set(key, user.id, 'EX', expiresIn)
+        await redis.set(key, JSON.stringify(user), 'EX', expiresIn)
         return
     } catch (error: unknown) {
         throw error
@@ -20,13 +20,10 @@ export async function setAccessToken(user: UserProfile) {
 }
 
 
-export async function getAccessToken(userId: string): Promise<string> {
+export async function getAccessToken(userId: string): Promise<string | null> {
     const key = getATKey(userId)
     try {
         const value = await redis.get(key)
-        if (!value) {
-            throw new Error('Redis key not found.')
-        }
         return value
     } catch (error: unknown) {
         throw error
