@@ -2,12 +2,13 @@ import { Request, Response, NextFunction } from 'express';
 import { LoginRequest } from '../model/request';
 import { ErrDataNotFound, ErrInvalidRequest, ErrNone, ErrSomethingWentWrong } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
-import * as user from '../dao/sql/user'
+import { getUser } from '../dao/sql/user'
 import { genAccessToken, genRefreshToken } from '../utils/token';
 import { verifyPassword } from '../utils/hash';
 import { delAccessToken, setAccessToken } from '../dao/cache/access_token';
 import { delRefreshToken, setRefreshToken } from '../dao/cache/refresh_token';
 import { GetUserOption } from '../model/sql_option';
+import { UserStatus } from '../enum/user';
 
 /**
  * Handles user login.
@@ -23,6 +24,7 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
             return
         }
 
+
         if (!password) {
             res.json(resFormattor(ErrInvalidRequest.newMsg('password is required.')))
             return
@@ -32,9 +34,14 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
             email: email,
         }
 
-        const existedUser = await user.get(getUserOpt)
+        const existedUser = await getUser(getUserOpt)
         if (!existedUser) {
             res.json(resFormattor(ErrDataNotFound.newMsg('Email or password is incorrect.')))
+            return
+        }
+
+        if (existedUser.status != UserStatus.ENABLE) {
+            res.json(resFormattor(ErrInvalidRequest.newMsg('Inavlid User.')))
             return
         }
 

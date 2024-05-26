@@ -1,14 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
 import { CustomRequest, LoginRequest, ResetPasswordReq } from '../model/request';
-import { ErrDataNotFound, ErrInvalidPassword, ErrInvalidRequest, ErrNone, ErrNotAuthorized, ErrPasswordNotMatch, ErrSomethingWentWrong } from '../err/error';
+import { ErrDataNotFound, ErrInvalidPassword, ErrInvalidRequest, ErrInvalidUser, ErrNone, ErrNotAuthorized, ErrPasswordNotMatch, ErrSomethingWentWrong } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
-import * as user from '../dao/sql/user'
+import { getUser, updateUser } from '../dao/sql/user'
 import { genAccessToken, genRefreshToken } from '../utils/token';
 import { hashPassword, verifyPassword } from '../utils/hash';
 import { delAccessToken, setAccessToken } from '../dao/cache/access_token';
 import { delRefreshToken, setRefreshToken } from '../dao/cache/refresh_token';
 import { GetUserOption, UpdUserOption } from '../model/sql_option';
 import { validatePassword } from '../utils/password_validator';
+import { UserStatus } from '../enum/user';
 
 /**
  * Handles user logout.
@@ -18,56 +19,71 @@ import { validatePassword } from '../utils/password_validator';
  */
 export async function resetPassword(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-        if (!req.userId) {
+        if (!req.user) {
             res.json(resFormattor(ErrNotAuthorized))
             return
         }
 
-        const { password, confirmPassword } = req.body as ResetPasswordReq
-
-        if (!password) {
-            res.json(resFormattor(ErrInvalidRequest.newMsg('password is required.')))
+        if (req.user.status != UserStatus.ENABLE) {
+            res.json(resFormattor(ErrInvalidUser))
             return
         }
 
-        if (!confirmPassword) {
-            res.json(resFormattor(ErrInvalidRequest.newMsg('confirmPassword is required.')))
+        const { oldPassword, newPassword, newConfirmPassword } = req.body as ResetPasswordReq
+
+        if (!oldPassword) {
+            res.json(resFormattor(ErrInvalidRequest.newMsg('oldPasword is required.')))
             return
         }
 
-        if (!validatePassword(password)) {
-            res.json(resFormattor(ErrInvalidPassword.newMsg('Invalid password')))
+        if (!newPassword) {
+            res.json(resFormattor(ErrInvalidRequest.newMsg('newPassword is required.')))
             return
         }
 
-        if (!validatePassword(confirmPassword)) {
-            res.json(resFormattor(ErrInvalidPassword.newMsg('Invalid confirm password')))
-            return
-        }
-
-        if (password != confirmPassword) {
-            res.json(resFormattor(ErrPasswordNotMatch))
+        if (!newConfirmPassword) {
+            res.json(resFormattor(ErrInvalidRequest.newMsg('newConfirmPassword is required.')))
             return
         }
 
         const getOpt: GetUserOption = {
-            userId: req.userId,
+            userId: req.user.id,
         }
 
-        const profile = await user.get(getOpt)
+        const profile = await getUser(getOpt)
         if (!profile) {
-            res.json(resFormattor(ErrDataNotFound.newMsg('User not found.')))
+            res.json(resFormattor(ErrDataNotFound.newMsg('Email or password is incorrect.')))
             return
         }
 
+        const match = await verifyPassword(oldPassword, profile.passphrase)
+        if (!match) {
+            res.json(resFormattor(ErrDataNotFound.newMsg('Email or password is incorrect.')))
+            return
+        }
 
-        const hashedPassword = await hashPassword(password)
+        if (!validatePassword(newPassword)) {
+            res.json(resFormattor(ErrInvalidPassword.newMsg('Invalid password')))
+            return
+        }
+
+        if (!validatePassword(newConfirmPassword)) {
+            res.json(resFormattor(ErrInvalidPassword.newMsg('Invalid confirm password')))
+            return
+        }
+
+        if (newPassword != newConfirmPassword) {
+            res.json(resFormattor(ErrPasswordNotMatch))
+            return
+        }
+
+        const hashedPassword = await hashPassword(newPassword)
 
         const updOpt: UpdUserOption = {
             passphrase: hashedPassword,
         }
 
-        await user.update(profile.id, updOpt)
+        await updateUser(profile.id, updOpt)
 
         res.json(resFormattor(ErrNone))
 

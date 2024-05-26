@@ -1,7 +1,8 @@
 import { Request } from "express";
+import { UserProfile } from "./user_profile";
 
 export interface CustomRequest extends Request {
-    userId?: string;
+    user?: UserProfile;
 }
 
 export interface SignUpRequest {
@@ -21,11 +22,16 @@ export interface UpdateProfileReq {
 }
 
 export interface ResetPasswordReq {
-    password: string;
-    confirmPassword: string;
+    oldPassword: string;
+    newPassword: string;
+    newConfirmPassword: string;
 }
 
 export interface RefreshTokenRequest {
+    token: string;
+}
+
+export interface VerifyTokenRequest {
     token: string;
 }
 

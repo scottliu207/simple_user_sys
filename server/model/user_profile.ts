@@ -1,5 +1,5 @@
 import { AccountType, UserStatus } from '../enum/user'
-import { create as createUser } from "../dao/sql/user";
+import { createUser } from "../dao/sql/user";
 import { genUuid } from '../utils/gen_uuid';
 
 export interface SqlUserProfile {
@@ -39,21 +39,16 @@ export class BaseUser implements UserProfile {
         this.email = email
         this.passphrase = passphrase
         this.accountType = AccountType.EMAIL
-        this.status = UserStatus.ENABLE
+        this.status = UserStatus.UNVERIFIED
     }
-
 
     /**
      * Create a new user
      * @returns {Promise<string>} - User ID
      */
-    async signup(): Promise<string> {
+    async create(): Promise<string> {
         await createUser(this)
         return this.id
-    }
-
-    login(): string {
-        return ""
     }
 }
 
@@ -69,7 +64,7 @@ export class GoogleUser extends BaseUser implements UserProfile {
      * Create a new user
      * @returns {Promise<string>} - User ID
      */
-    async signup(): Promise<string> {
+    async create(): Promise<string> {
         await createUser(this)
         return this.id
     }

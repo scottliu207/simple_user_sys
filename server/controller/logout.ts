@@ -18,14 +18,13 @@ import { GetUserOption } from '../model/sql_option';
 export async function logout(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
     try {
 
-        if (!req.userId) {
+        if (!req.user) {
             res.json(resFormattor(ErrNotAuthorized))
             return
         }
 
-        await delAccessToken(req.userId)
-        await delRefreshToken(req.userId)
-
+        await delAccessToken(req.user.id)
+        await delRefreshToken(req.user.id)
 
         res.json(resFormattor(ErrNone))
 

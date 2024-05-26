@@ -25,6 +25,7 @@ export enum ErrorCode {
     DATA_NOT_FOUND = 1004,
     PASSWORD_NOT_MATCH = 1005,
     INVALID_PASSWORD = 1006,
+    INVALID_USER = 1007,
 
     // Server Error
     SOMETHING_WENT_WRONG = 3000,
@@ -32,6 +33,7 @@ export enum ErrorCode {
 
 export const ErrNone = new CustomError(200, ErrorCode.SUCCESS, '')
 export const ErrInvalidRequest = new CustomError(400, ErrorCode.INVALID_REQUEST, 'Invalid request.')
+export const ErrInvalidUser = new CustomError(400, ErrorCode.INVALID_USER, 'Invalid user.')
 export const ErrPasswordNotMatch = new CustomError(400, ErrorCode.PASSWORD_NOT_MATCH, 'Password must be as the same as confirm password.')
 export const ErrInvalidPassword = new CustomError(400, ErrorCode.INVALID_PASSWORD, 'Invalid password')
 export const ErrDataAlreadyExists = new CustomError(400, ErrorCode.DATA_ALREADY_EXISTS, 'Data already exists.')

@@ -1,9 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { validateAccessToken } from "../utils/token";
 import { resFormattor } from "../utils/res_formatter";
-import { ErrNotAuthorized, ErrSomethingWentWrong } from "../err/error";
+import { ErrDataNotFound, ErrNotAuthorized, ErrSomethingWentWrong } from "../err/error";
 import { CustomRequest } from "../model/request";
 import { getAccessToken } from "../dao/cache/access_token";
+import { GetUserOption } from "../model/sql_option";
+import { getUser } from '../dao/sql/user'
 
 /**
  * User authentication
@@ -18,7 +20,7 @@ export async function Authenticator(req: CustomRequest, res: Response, next: Nex
             res.json(resFormattor(ErrNotAuthorized))
             return
         }
-        
+
         const payload = await validateAccessToken(token)
         const value = await getAccessToken(payload.userId)
         if (!value) {
@@ -26,7 +28,18 @@ export async function Authenticator(req: CustomRequest, res: Response, next: Nex
             return
         }
 
-        req.userId = payload.userId
+        const getOpt: GetUserOption = {
+            userId: payload.userId,
+        }
+
+        const profile = await getUser(getOpt)
+        if (!profile) {
+            res.json(resFormattor(ErrDataNotFound.newMsg('Email or password is incorrect.')))
+            return
+        }
+        
+        req.user = profile
+
     } catch (error: unknown) {
         console.log('Unkonwn error occured: ' + error)
         res.json(resFormattor(ErrSomethingWentWrong))

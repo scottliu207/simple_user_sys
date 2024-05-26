@@ -1,6 +1,7 @@
 export enum UserStatus {
     ENABLE = 1,
-    DISABLE = 2
+    DISABLE = 2,
+    UNVERIFIED = 3
 }
 
 

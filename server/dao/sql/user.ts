@@ -8,7 +8,7 @@ import { GetUserOption, UpdUserOption } from '../../model/sql_option'
  * @param input  - user's profile
  * @return {Promise<void>}
 */
-export async function create(input: UserProfile): Promise<void> {
+export async function createUser(input: UserProfile): Promise<void> {
     let sql: string = ""
     let params: any[] = []
     sql += " INSERT INTO `user_db`.`profile` ( "
@@ -43,7 +43,7 @@ export async function create(input: UserProfile): Promise<void> {
  * @param userId 
  * @param option 
  */
-export async function update(userId: string, option: UpdUserOption): Promise<void> {
+export async function updateUser(userId: string, option: UpdUserOption): Promise<void> {
     let sql: string = ""
     let params: any[] = []
     let setSql: string[] = []
@@ -63,12 +63,21 @@ export async function update(userId: string, option: UpdUserOption): Promise<voi
         params.push(option.passphrase)
     }
 
+    if (option.status) {
+        setSql.push("   `status` = ? ")
+        params.push(option.status)
+    }
+
     if (setSql.length == 0) {
         throw new Error("must provide at least one option param")
     }
 
     sql = sql.concat(setSql.join(","))
 
+    sql += ' WHERE '
+    sql += ' `id` = ? '
+    params.push(userId)
+    
     try {
         await execute(sql, params)
     } catch (error: unknown) {
@@ -84,7 +93,7 @@ export async function update(userId: string, option: UpdUserOption): Promise<voi
  * @param {string } email  - user's email
  * @return {Promise<UserProfile|null>}
 */
-export async function get(option: GetUserOption): Promise<UserProfile | null> {
+export async function getUser(option: GetUserOption): Promise<UserProfile | null> {
     let sql: string = ""
     let params: any[] = []
     let whereSql: string[] = []
@@ -112,6 +121,11 @@ export async function get(option: GetUserOption): Promise<UserProfile | null> {
     if (option.username) {
         whereSql.push(" `username` = ? ")
         params.push(option.username)
+    }
+
+    if (option.status) {
+        whereSql.push(" `status` = ? ")
+        params.push(option.status)
     }
 
     if (whereSql.length == 0) {

@@ -1,0 +1,101 @@
+
+
+import sgMail, { MailDataRequired } from '@sendgrid/mail'
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY!)
+
+
+/**
+ * 
+ * @param address 
+ * @param username 
+ */
+export async function sendEmail(address: string, username: string, token: string) {
+    const appName = 'The Scott\' Simple User Sys'
+
+    const emailText = `
+    Hello  ${username},
+    
+    Thank you for registering with ${appName}. To complete your registration, please verify your email address by clicking the link below:
+    
+    ${process.env.DOMAIN}/verify-email?token=${token}
+    
+    If the above link does not work, please copy and paste the following URL into your web browser:
+    
+    ${process.env.DOMAIN}/verify-email?token=${token}
+    
+    If you did not create an account with ${appName}, please ignore this email.
+    
+    Best regards,
+    The Scott's Simple User Sys`
+
+    const emailHtml = `<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Email Verification</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f6f6f6;
+                margin: 0;
+                padding: 0;
+                -webkit-text-size-adjust: none;
+            }
+            .container {
+                width: 100%;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #ffffff;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+            .content {
+                text-align: left;
+            }
+            .content p {
+                color: #555555;
+                line-height: 1.6;
+            }
+            .content a {
+                color: #007bff;
+                text-decoration: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="content">
+                <p>Hello ${username},</p>
+                <p>Thank you for registering with ${appName}. To complete your registration, please verify your email address by clicking the link below:</p>
+                <p><a href="${process.env.DOMAIN}/verify-email?token=${token}">${process.env.DOMAIN}/verify-email?token=${token}</a></p>
+                <p>If the above link does not work, please copy and paste the following URL into your web browser:</p>
+                <p><a href="${process.env.DOMAIN}/verify-email?token=${token}">${process.env.DOMAIN}/verify-email?token=${token}</a></p>
+                <p>If you did not create an account with ${appName}, please ignore this email.</p>
+                <p>Best regards,<br>${appName}</p>
+            </div>
+        </div>
+    </body>
+    </html>`
+
+
+    const msg: MailDataRequired = {
+        to: address,
+        from: process.env.SENDGRID_FROM!,
+        subject: `Verify Your Email Address for ${appName}`,
+        text: emailText,
+        html: emailHtml,
+    }
+
+    try {
+        const sgRes = await sgMail.send(msg)
+        if (sgRes[0].statusCode != 202) {
+            throw new Error('Sending email failed.')
+        }
+
+    } catch (error) {
+        throw new Error('Sending email,' + error)
+    }
+}
+

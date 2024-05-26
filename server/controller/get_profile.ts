@@ -1,13 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import { CustomRequest, LoginRequest } from '../model/request';
-import { ErrDataNotFound, ErrInvalidRequest, ErrNone, ErrNotAuthorized, ErrSomethingWentWrong } from '../err/error';
+import { ErrDataNotFound, ErrInvalidRequest, ErrInvalidUser, ErrNone, ErrNotAuthorized, ErrSomethingWentWrong } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
-import * as user from '../dao/sql/user'
+import { } from '../dao/sql/user'
 import { genAccessToken, genRefreshToken } from '../utils/token';
 import { verifyPassword } from '../utils/hash';
 import { delAccessToken, setAccessToken } from '../dao/cache/access_token';
 import { delRefreshToken, setRefreshToken } from '../dao/cache/refresh_token';
 import { GetUserOption } from '../model/sql_option';
+import { UserStatus } from '../enum/user';
 
 /**
  * Handles user logout.
@@ -17,29 +18,23 @@ import { GetUserOption } from '../model/sql_option';
  */
 export async function getProfile(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-
-
-        if (!req.userId) {
+        if (!req.user) {
             res.json(resFormattor(ErrNotAuthorized))
             return
         }
-        const option: GetUserOption = {
-            userId: req.userId,
-        }
-
-        const profile = await user.get(option)
-        if (!profile) {
-            res.json(resFormattor(ErrDataNotFound.newMsg('User not found.')))
+        
+        if (req.user.status != UserStatus.ENABLE) {
+            res.json(resFormattor(ErrInvalidUser))
             return
         }
 
         const result = {
-            userId: profile.id,
-            username: profile.username,
-            email: profile.email,
-            accountType: profile.accountType,
-            createTime: profile.createTime,
-            updateTime: profile.updateTime,
+            userId: req.user.id,
+            username: req.user.username,
+            email: req.user.email,
+            accountType: req.user.accountType,
+            createTime: req.user.createTime,
+            updateTime: req.user.updateTime,
         }
 
         res.json(resFormattor(ErrNone, result))

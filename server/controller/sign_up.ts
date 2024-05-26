@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import * as user from '../dao/sql/user';
+import { getUser } from '../dao/sql/user';
 import { BaseUser } from '../model/user_profile';
 import { SignUpResult } from '../model/response';
 import { SignUpRequest } from '../model/request';
@@ -8,6 +8,10 @@ import { ErrDataAlreadyExists, ErrInvalidRequest, ErrSomethingWentWrong, ErrorCo
 import { resFormattor } from '../utils/res_formatter';
 import { GetUserOption } from '../model/sql_option';
 import { validatePassword } from '../utils/password_validator';
+import { sendEmail } from '../utils/email';
+import { setVerifyToken } from '../dao/cache/verify_token';
+import { genUuid } from '../utils/gen_uuid';
+import { genEmailToken } from '../utils/token';
 
 /**
  * Handles user sign-up.
@@ -58,7 +62,7 @@ export async function signUp(req: Request, res: Response, next: NextFunction): P
             email: email,
         }
 
-        const emailExist = await user.get(emailOption)
+        const emailExist = await getUser(emailOption)
         if (emailExist) {
             res.json(resFormattor(ErrDataAlreadyExists.newMsg('email already exists.')))
             return
@@ -67,7 +71,7 @@ export async function signUp(req: Request, res: Response, next: NextFunction): P
         const nameOption: GetUserOption = {
             username: username,
         }
-        const nameExist = await user.get(nameOption)
+        const nameExist = await getUser(nameOption)
         if (nameExist) {
             res.json(resFormattor(ErrDataAlreadyExists.newMsg('username already exists.')))
             return
@@ -75,15 +79,22 @@ export async function signUp(req: Request, res: Response, next: NextFunction): P
 
         const hashedPassword = await hashPassword(password)
         const profile = new BaseUser(username, email, hashedPassword)
-        const userId = await profile.signup()
+        const userId = await profile.create()
 
         const result: SignUpResult = {
             userId: userId,
         }
-        res.json(resFormattor(ErrNone, result))
 
+        const token = await genEmailToken(profile.id)
+
+        await setVerifyToken(profile.id, token)
+        await sendEmail(email, username, token)
+
+        res.json(resFormattor(ErrNone, result))
+        return
     } catch (error: unknown) {
-        console.log('Unkonwn error occured: ' + error)
+        console.log('Unkonwn error occured, ' + error)
         res.json(resFormattor(ErrSomethingWentWrong))
+        return
     }
 };
