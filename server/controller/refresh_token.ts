@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { RefreshTokenRequest } from '../model/request';
 import { ErrDataNotFound, ErrInvalidRequest, ErrNone, ErrNotAuthorized, ErrSomethingWentWrong } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
-import { getUser } from '../dao/sql/user'
+import { getOneUser } from '../dao/sql/user'
 import { genAccessToken, validateRefreshToken } from '../utils/token';
 import { setAccessToken } from '../dao/cache/access_token';
 import { getRefreshToken } from '../dao/cache/refresh_token';
@@ -34,7 +34,7 @@ export async function refreshToken(req: Request, res: Response, next: NextFuncti
         const getUserOpt: GetUserOption = {
             userId: payload.userId,
         }
-        const profile = await getUser(getUserOpt)
+        const profile = await getOneUser(getUserOpt)
         if (!profile) {
             res.json(resFormattor(ErrDataNotFound))
             return

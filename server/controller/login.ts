@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { LoginRequest } from '../model/request';
 import { ErrDataNotFound, ErrInvalidRequest, ErrNone, ErrSomethingWentWrong } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
-import { getUser } from '../dao/sql/user'
+import { getOneUser } from '../dao/sql/user'
 import { genAccessToken, genRefreshToken } from '../utils/token';
 import { verifyPassword } from '../utils/hash';
 import { delAccessToken, setAccessToken } from '../dao/cache/access_token';
@@ -34,7 +34,7 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
             email: email,
         }
 
-        const existedUser = await getUser(getUserOpt)
+        const existedUser = await getOneUser(getUserOpt)
         if (!existedUser) {
             res.json(resFormattor(ErrDataNotFound.newMsg('Email or password is incorrect.')))
             return

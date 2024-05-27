@@ -5,6 +5,7 @@ USE `user_db`;
 -- user profile
 CREATE TABLE `user_db`.`profile` (
   `id` char(50) NOT NULL COMMENT 'user_id',
+  `auth_level` tinyint unsigned NOT NULL COMMENT 'auth level 1: User 2: Admin',
   `account_type` tinyint unsigned NOT NULL COMMENT 'account type 1: Email 2: Google',
   `username` varchar(255) NOT NULL COMMENT 'username',
   `email` varchar(255) NOT NULL COMMENT 'email',
@@ -12,7 +13,9 @@ CREATE TABLE `user_db`.`profile` (
   `status` tinyint unsigned NOT NULL COMMENT 'user status 1: Enable 2: Disable 3: Unverified',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create time',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'update time',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY(`email`),
+  UNIQUE KEY(`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='user profile';
 
 -- user login record

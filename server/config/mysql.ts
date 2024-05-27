@@ -1,4 +1,5 @@
 import mysql from 'mysql2/promise';
+import { timeout } from '../utils/time';
 
 
 
@@ -11,17 +12,31 @@ const option: mysql.PoolOptions = {
     timezone: process.env.MYSQL_TIMEZONE,
 }
 
-const pool = mysql.createPool(option)
+export const pool = mysql.createPool(option)
 
 
 export async function pingMySql() {
-    try {
-        const conn = await pool.getConnection()
-        await conn.ping()
-        console.log('Successfully connect to MySQL.')
-    } catch (error: unknown) {
-        throw error
+
+    let conn: mysql.PoolConnection | null = null;
+
+    for (let i = 1; i <= 10; i++) {
+        await timeout(1000)
+        try {
+            conn = await pool.getConnection()
+            await conn.ping()
+            console.log('Successfully connect to MySQL.')
+            break
+        } catch (error: unknown) {
+            console.log(`MySQL ping failed, tried ${i} times`)
+            continue
+        } finally {
+            if (conn) {
+                conn.release()
+            }
+        }
     }
+
+    throw new Error('MySQL connection failed.')
 }
 
 /**

@@ -1,26 +1,36 @@
 version: '3.9'
-services:
-  mysql:
-    container_name: users-mysql
-    image: "mysql:8.0.33"
-    ports:
-      - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_ROOT_HOST: "%"
-    volumes:
-      - ./mysql:/etc/mysql/conf.d
-      - ./mysql/init_file:/docker-entrypoint-initdb.d
-      - ./mysql/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh
-    networks:
-      - users-network
-  redis:
-    container_name: users-redis
-    image: redis:7.2.5
-    ports:
-      - 6379:6379
-    networks:
-      - users-network
+
 networks:
   users-network:
     driver: bridge
+
+services:
+  users-app:
+    container_name: users-app
+    image: users-app
+    # build: ../.
+    ports:
+      - "3000:3000"
+    depends_on:
+      - users-mysql
+      - users-redis
+    environment:
+      - DOMAIN=http://localhost:3000
+      - MYSQL_HOST=users-mysql
+      - MYSQL_ACCOUNT=root
+      - MYSQL_PASSWORD=root
+      - MYSQL_PORT=3306
+      - MYSQL_USERDB=user_db
+      - MYSQL_TIMEZONE=+00:00
+      - REDIS_HOST=users-redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - SALT_ROUND=10
+      - JWT_SECRET=SECRET
+      - JWT_ACCESS_TOKEN_EXPIRE=15m
+      - JWT_REFRESH_TOKEN_EXPIRE=30d
+      - JWT_EMAIL_TOKEN_EXPIRE=1h
+
+    networks:
+      - users-network
+

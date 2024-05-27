@@ -1,6 +1,7 @@
 import { SqlUserProfile, UserProfile } from '../../model/user_profile'
-import { execute, query } from '../../config/db'
+import { execute, query } from '../../config/mysql'
 import { GetUserOption, UpdUserOption } from '../../model/sql_option'
+import { paging } from '../../utils/paging'
 
 
 /** 
@@ -15,15 +16,17 @@ export async function createUser(input: UserProfile): Promise<void> {
     sql += "   `id`, "
     sql += "   `username`, "
     sql += "   `account_type`, "
+    sql += "   `auth_level`, "
     sql += "   `email`, "
     sql += "   `passphrase`, "
     sql += "   `status` ) "
-    sql += " VALUES (?, ?, ?, ?, ?, ?) "
+    sql += " VALUES (?, ?, ?, ?, ?, ?, ?) "
 
     params.push(
         input.id,
         input.username,
         input.accountType,
+        input.authLevel,
         input.email,
         input.passphrase,
         input.status,
@@ -77,7 +80,7 @@ export async function updateUser(userId: string, option: UpdUserOption): Promise
     sql += ' WHERE '
     sql += ' `id` = ? '
     params.push(userId)
-    
+
     try {
         await execute(sql, params)
     } catch (error: unknown) {
@@ -93,7 +96,7 @@ export async function updateUser(userId: string, option: UpdUserOption): Promise
  * @param {string } email  - user's email
  * @return {Promise<UserProfile|null>}
 */
-export async function getUser(option: GetUserOption): Promise<UserProfile | null> {
+export async function getOneUser(option: GetUserOption): Promise<UserProfile | null> {
     let sql: string = ""
     let params: any[] = []
     let whereSql: string[] = []
@@ -101,6 +104,7 @@ export async function getUser(option: GetUserOption): Promise<UserProfile | null
     sql += "   `id`, "
     sql += "   `username`, "
     sql += "   `account_type`, "
+    sql += "   `auth_level`, "
     sql += "   `email`, "
     sql += "   `passphrase`, "
     sql += "   `status`, "
@@ -149,12 +153,94 @@ export async function getUser(option: GetUserOption): Promise<UserProfile | null
             email: profileSql.email,
             passphrase: profileSql.passphrase,
             accountType: profileSql.account_type,
+            authLevel: profileSql.auth_level,
             status: profileSql.status,
             createTime: profileSql.create_time,
             updateTime: profileSql.update_time,
         }
 
         return profile
+
+    } catch (error: unknown) {
+        console.log("sql exec failed, Err: " + error)
+        throw error
+    }
+}
+
+/** 
+ * get a user's profile
+ * @param {string } userId - user id 
+ * @param {string } email  - user's email
+ * @return {Promise<UserProfile|null>}
+*/
+export async function getUsers(option: GetUserOption): Promise<UserProfile[] | null> {
+    let sql: string = ""
+    let params: any[] = []
+    let whereSql: string[] = []
+    sql += " SELECT "
+    sql += "   `id`, "
+    sql += "   `username`, "
+    sql += "   `account_type`, "
+    sql += "   `auth_level`, "
+    sql += "   `email`, "
+    sql += "   `passphrase`, "
+    sql += "   `status`, "
+    sql += "   `create_time`, "
+    sql += "   `update_time` "
+    sql += " FROM `user_db`.`profile` "
+
+    if (option.userId) {
+        whereSql.push(" `id` = ? ")
+        params.push(option.userId)
+    }
+
+    if (option.email) {
+        whereSql.push(" `email` = ? ")
+        params.push(option.email)
+    }
+
+    if (option.username) {
+        whereSql.push(" `username` = ? ")
+        params.push(option.username)
+    }
+
+    if (option.status) {
+        whereSql.push(" `status` = ? ")
+        params.push(option.status)
+    }
+
+    if (whereSql.length == 0) {
+        throw new Error("must provide at least one param for where caluse")
+    }
+
+    if (option.page && option.perPage) {
+        const pagingSql = paging(option.page, option.perPage)
+            sql += " LIMIT ? OFFEST ? "
+            params.push(pagingSql.limit)
+            params.push(pagingSql.offset)
+    }
+
+    sql = sql.concat(" WHERE ", whereSql.join(" AND "))
+
+    try {
+        let users: UserProfile[] = []
+        let result = await query(sql, params)
+        result.forEach((v) => {
+            const profileDb = v as SqlUserProfile
+            const user: UserProfile = {
+                id: profileDb.id,
+                username: profileDb.username,
+                email: profileDb.email,
+                passphrase: profileDb.passphrase,
+                accountType: profileDb.account_type,
+                authLevel: profileDb.auth_level,
+                status: profileDb.status,
+                createTime: profileDb.create_time,
+                updateTime: profileDb.update_time,
+            }
+            users.push(user)
+        })
+        return users
 
     } catch (error: unknown) {
         console.log("sql exec failed, Err: " + error)

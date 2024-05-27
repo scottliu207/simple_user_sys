@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { LoginRequest, VerifyTokenRequest } from '../model/request';
 import { ErrDataNotFound, ErrInvalidRequest, ErrNone, ErrNotAuthorized, ErrSomethingWentWrong } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
-import { getUser, updateUser } from '../dao/sql/user'
+import { getOneUser, updateUser } from '../dao/sql/user'
 import { genAccessToken, genRefreshToken, validateEmailToken } from '../utils/token';
 import { verifyPassword } from '../utils/hash';
 import { delAccessToken, setAccessToken } from '../dao/cache/access_token';
@@ -37,7 +37,7 @@ export async function verifyEmail(req: Request, res: Response, next: NextFunctio
             userId: userId,
         }
 
-        const existedUser = await getUser(getUserOpt)
+        const existedUser = await getOneUser(getUserOpt)
         if (!existedUser) {
             res.json(resFormattor(ErrDataNotFound.newMsg('User not found.')))
             return

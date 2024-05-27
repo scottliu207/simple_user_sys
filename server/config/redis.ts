@@ -7,6 +7,8 @@ const option: RedisOptions = {
     db: process.env.REDIS_DB ? +process.env.REDIS_DB : 0,
 }
 
+
+
 export const redis = new Redis(option)
 
 redis.on('error', (error: Error) => {
@@ -15,8 +17,9 @@ redis.on('error', (error: Error) => {
 
 /**
  * 
- */
-export async function PingRedis() {
+*/
+export async function pingRedis() {
+
     try {
         const pong = await redis.ping()
         if (pong) {
@@ -24,7 +27,7 @@ export async function PingRedis() {
         }
     } catch (error: unknown) {
         console.log('Unexpected error occured, Error: ' + error)
-        process.exit(1)
+        throw error
     }
 }
 

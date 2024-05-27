@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { getUser } from '../dao/sql/user';
+import { getOneUser } from '../dao/sql/user';
 import { BaseUser } from '../model/user_profile';
 import { SignUpResult } from '../model/response';
 import { SignUpRequest } from '../model/request';
@@ -62,7 +62,7 @@ export async function signUp(req: Request, res: Response, next: NextFunction): P
             email: email,
         }
 
-        const emailExist = await getUser(emailOption)
+        const emailExist = await getOneUser(emailOption)
         if (emailExist) {
             res.json(resFormattor(ErrDataAlreadyExists.newMsg('email already exists.')))
             return
@@ -71,7 +71,7 @@ export async function signUp(req: Request, res: Response, next: NextFunction): P
         const nameOption: GetUserOption = {
             username: username,
         }
-        const nameExist = await getUser(nameOption)
+        const nameExist = await getOneUser(nameOption)
         if (nameExist) {
             res.json(resFormattor(ErrDataAlreadyExists.newMsg('username already exists.')))
             return

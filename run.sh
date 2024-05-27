@@ -18,7 +18,8 @@ NC='\033[0m' # No Color
 
 # running up local env
 function Up() {
-	ComposeName="-f user_sys.yaml"
+	# ComposeName="-f db.yaml "
+	ComposeName="-f user_sys.yaml -f db.yaml "
 	cd $ExecDir
 	echo -e "${YELLOW} Running up container:${NC} $ComposeName"
 	docker-compose $ComposeName down
@@ -36,26 +37,24 @@ function Up() {
 
 # running down containers
 function Down() {
-	if [[ -n $(docker ps -a -f name=docker-user-mysql -q) ]]; then
+	if [[ -n $(docker ps -a -f name=users -q) ]]; then
 		echo -e "${YELLOW}Remove Container${NC}"
-		docker rm -f $(docker ps -a -f name=docker-user-mysql -q)
+		docker rm -f $(docker ps -a -f name=users -q)
 	fi
 
-	
-	# if [[ -n $(docker ps -a -f name=docker_user -q) ]]; then
-	# 	echo -e "${YELLOW}Remove Container${NC}"
-	# 	docker rm -f $(docker ps -a -f name=docker_user -q)
-	# fi
-
-	if [[ -n $(docker network ls -q -f name=user) ]]; then
+	if [[ -n $(docker network ls -q -f name=users) ]]; then
 		echo -e "${YELLOW}Remove Docker Network${NC}"
-		docker network rm $(docker network ls -q -f name=user)
+		docker network rm $(docker network ls -q -f name=users)
 	fi
 
 	if [[ -n $(docker volume ls -q -f dangling=true) ]]; then
 		echo -e "${YELLOW}Remove Docker Volume${NC}"
 		docker volume rm $(docker volume ls -q -f dangling=true)
 	fi
+}
+
+function Build() {
+	docker build -t users-app .
 }
 
 # Command line flag
@@ -67,6 +66,7 @@ case "$1" in
 	echo " Options: "
 	echo "   -u, --up      running up all containers"
 	echo "   -d, --down    running down all containers"
+	echo "   -b, --build   building up the user-app image"
 	;;
   -u | --up)
     Up
@@ -74,6 +74,10 @@ case "$1" in
 
   -d | --down)
 	Down
+	;;
+
+  -b | --build)
+	Build
 	;;
 *)
   echo "use './run.sh -h' for more info"

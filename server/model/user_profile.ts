@@ -1,4 +1,4 @@
-import { AccountType, UserStatus } from '../enum/user'
+import { AccountType, AuthLevel, UserStatus } from '../enum/user'
 import { createUser } from "../dao/sql/user";
 import { genUuid } from '../utils/gen_uuid';
 
@@ -6,6 +6,7 @@ export interface SqlUserProfile {
     id: string;
     username: string;
     account_type: AccountType;
+    auth_level: AuthLevel;
     email: string;
     passphrase: string;
     status: UserStatus;
@@ -16,6 +17,7 @@ export interface UserProfile {
     id: string;
     username: string;
     accountType: AccountType;
+    authLevel: AuthLevel;
     email: string;
     passphrase: string;
     status: UserStatus;
@@ -26,6 +28,7 @@ export interface UserProfile {
 export class BaseUser implements UserProfile {
     public id: string;
     public accountType: AccountType;
+    public authLevel: AuthLevel;
     public username: string;
     public email: string;
     public passphrase: string;
@@ -36,6 +39,7 @@ export class BaseUser implements UserProfile {
     constructor(username: string, email: string, passphrase: string) {
         this.id = genUuid()
         this.username = username
+        this.authLevel = AuthLevel.USER
         this.email = email
         this.passphrase = passphrase
         this.accountType = AccountType.EMAIL

@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { CustomRequest, LoginRequest, ResetPasswordReq } from '../model/request';
 import { ErrDataNotFound, ErrInvalidPassword, ErrInvalidRequest, ErrInvalidUser, ErrNone, ErrNotAuthorized, ErrPasswordNotMatch, ErrSomethingWentWrong } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
-import { getUser, updateUser } from '../dao/sql/user'
+import { getOneUser, updateUser } from '../dao/sql/user'
 import { genAccessToken, genRefreshToken } from '../utils/token';
 import { hashPassword, verifyPassword } from '../utils/hash';
 import { delAccessToken, setAccessToken } from '../dao/cache/access_token';
@@ -50,7 +50,7 @@ export async function resetPassword(req: CustomRequest, res: Response, next: Nex
             userId: req.user.id,
         }
 
-        const profile = await getUser(getOpt)
+        const profile = await getOneUser(getOpt)
         if (!profile) {
             res.json(resFormattor(ErrDataNotFound.newMsg('Email or password is incorrect.')))
             return
