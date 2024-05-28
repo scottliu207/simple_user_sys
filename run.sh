@@ -54,7 +54,7 @@ function Down() {
 }
 
 function Build() {
-	docker build -t users-app .
+	docker build -t simple-user-app .
 }
 
 # Command line flag

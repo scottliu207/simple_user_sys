@@ -25,7 +25,7 @@ export async function pingMySql() {
             conn = await pool.getConnection()
             await conn.ping()
             console.log('Successfully connect to MySQL.')
-            break
+            return
         } catch (error: unknown) {
             console.log(`MySQL ping failed, tried ${i} times`)
             continue

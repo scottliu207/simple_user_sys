@@ -6,9 +6,8 @@ networks:
 
 services:
   users-app:
-    container_name: users-app
+    container_name: simple-user-app
     image: users-app
-    # build: ../.
     ports:
       - "3000:3000"
     depends_on:
@@ -25,11 +24,6 @@ services:
       - REDIS_HOST=users-redis
       - REDIS_PORT=6379
       - REDIS_DB=0
-      - SALT_ROUND=10
-      - JWT_SECRET=SECRET
-      - JWT_ACCESS_TOKEN_EXPIRE=15m
-      - JWT_REFRESH_TOKEN_EXPIRE=30d
-      - JWT_EMAIL_TOKEN_EXPIRE=1h
 
     networks:
       - users-network

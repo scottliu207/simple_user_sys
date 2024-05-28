@@ -12,7 +12,7 @@ import { paging } from '../../utils/paging'
 export async function createUser(input: UserProfile): Promise<void> {
     let sql: string = ""
     let params: any[] = []
-    sql += " INSERT INTO `user_db`.`profile` ( "
+    sql += " INSERT INTO `profile` ( "
     sql += "   `id`, "
     sql += "   `username`, "
     sql += "   `account_type`, "
@@ -50,7 +50,7 @@ export async function updateUser(userId: string, option: UpdUserOption): Promise
     let sql: string = ""
     let params: any[] = []
     let setSql: string[] = []
-    sql += " UPDATE `user_db`.`profile` SET "
+    sql += " UPDATE `profile` SET "
     if (option.username) {
         setSql.push("   `username` = ? ")
         params.push(option.username)
@@ -110,7 +110,7 @@ export async function getOneUser(option: GetUserOption): Promise<UserProfile | n
     sql += "   `status`, "
     sql += "   `create_time`, "
     sql += "   `update_time` "
-    sql += " FROM `user_db`.`profile` "
+    sql += " FROM `profile` "
 
     if (option.userId) {
         whereSql.push(" `id` = ? ")
@@ -187,7 +187,7 @@ export async function getUsers(option: GetUserOption): Promise<UserProfile[] | n
     sql += "   `status`, "
     sql += "   `create_time`, "
     sql += "   `update_time` "
-    sql += " FROM `user_db`.`profile` "
+    sql += " FROM `profile` "
 
     if (option.userId) {
         whereSql.push(" `id` = ? ")
