@@ -1,14 +1,11 @@
-import { Request, Response, NextFunction } from 'express';
-import { CustomRequest, LoginRequest } from '../model/request';
+import { Response, NextFunction } from 'express';
+import { CustomRequest, GetUsersRequest, } from '../model/request';
 import { ErrDataNotFound, ErrInvalidRequest, ErrInvalidUser, ErrNone, ErrNotAuthorized, ErrSomethingWentWrong } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
-import { } from '../dao/sql/user'
-import { genAccessToken, genRefreshToken } from '../utils/token';
-import { verifyPassword } from '../utils/hash';
-import { delAccessToken, setAccessToken } from '../dao/cache/access_token';
-import { delRefreshToken, setRefreshToken } from '../dao/cache/refresh_token';
-import { GetUserOption } from '../model/sql_option';
-import { UserStatus } from '../enum/user';
+import { AuthLevel, UserStatus } from '../enum/user';
+import { GetUserOption, GetUsersOption } from '../model/sql_option';
+import { getOneUser, getTotalUser, getUsers } from '../dao/sql/user';
+import { GetUserResult, GetUsersResult, GetUsersResultRow } from '../model/response';
 
 /**
  * Handles user logout.
@@ -16,26 +13,49 @@ import { UserStatus } from '../enum/user';
  * @param res - Express response object
  * @param next - Express next middleware function
  */
-export async function getUsers(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
+export async function getUserList(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-        if (!req.user) {
-            res.json(resFormattor(ErrNotAuthorized))
-            return
-        }
-        
-        if (req.user.status != UserStatus.ENABLE) {
-            res.json(resFormattor(ErrInvalidUser))
+        const { userId, email, username, status, page, perPage } = req.body as GetUsersRequest
+
+        if (!page) {
+            res.json(resFormattor(ErrInvalidRequest.newMsg('page is required.')))
             return
         }
 
-        const result = {
-            userId: req.user.id,
-            username: req.user.username,
-            email: req.user.email,
-            accountType: req.user.accountType,
-            createTime: req.user.createTime,
-            updateTime: req.user.updateTime,
+        if (!perPage) {
+            res.json(resFormattor(ErrInvalidRequest.newMsg('perPage is required.')))
+            return
         }
+
+        const getUsersOpt: GetUsersOption = {
+            userId: userId,
+            username: username,
+            email: email,
+            authLevel: AuthLevel.USER,
+            page: page,
+            perPage: perPage
+        }
+
+        const users = await getUsers(getUsersOpt)
+        const total = await getTotalUser(getUsersOpt)
+        const result: GetUsersResult = {
+            data: [],
+            total: total,
+        }
+
+        users.forEach((user) => {
+            const row: GetUsersResultRow = {
+                userId: user.id,
+                email: user.email,
+                username: user.username,
+                accountType: user.accountType,
+                status: user.status,
+                createTime: user.createTime ?? new Date(0),
+                updateTime: user.updateTime ?? new Date(0),
+            }
+            result.data.push(row)
+        })
+
 
         res.json(resFormattor(ErrNone, result))
 

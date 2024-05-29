@@ -1,8 +1,9 @@
 import { Request } from "express";
 import { UserProfile } from "./user_profile";
+import { UserStatus } from "../enum/user";
 
 export interface CustomRequest extends Request {
-    user?: UserProfile;
+    userId?: string;
 }
 
 export interface SignUpRequest {
@@ -35,3 +36,16 @@ export interface VerifyTokenRequest {
     token: string;
 }
 
+
+export interface ResendEmailRequest {
+    token: string;
+}
+
+export interface GetUsersRequest {
+    userId?: string;
+    username?: string;
+    email?: string;
+    status?: UserStatus;
+    page: number;
+    perPage: number;
+}

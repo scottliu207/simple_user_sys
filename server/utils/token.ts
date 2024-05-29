@@ -1,122 +1,41 @@
-import jwt, { JsonWebTokenError, SignOptions } from 'jsonwebtoken'
-import { genUuid } from './gen_uuid'
-
-
-
-interface JwtPayload {
-    userId: string;
-    tokenId?: string;
-}
-
-export interface RefreshToken {
-    tokenId: string;
-    userId: string;
-    token: string;
-}
-
-/**
- * Generates JWT token
- * @param userId 
- * @returns {string} - JWT Token 
- */
-async function genToken(payload: JwtPayload, expire: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-        jwt.sign(
-            payload,
-            process.env.JWT_SECRET!,
-            { expiresIn: expire } as SignOptions,
-            (err, token) => {
-                if (err) {
-                    reject(err)
-                }
-
-                if (!token) {
-                    reject(new Error('Token generation failed'))
-                }
-
-                resolve(token!)
-            }
-        )
-    })
-}
+import jwt, { JwtPayload } from 'jsonwebtoken'
 
 /**
  * 
- * @param token 
- * @returns 
+ * @param userId - User's id
+ * @returns {sessionId} - SessionId
  */
-async function validateToken(token: string): Promise<any> {
-    return new Promise((resolve, reject) => {
-        jwt.verify(token, process.env.JWT_SECRET!, (err, decoded) => {
-            if (err) {
-                return reject(err);
-            }
-            resolve(decoded);
-        });
-    });
+export function generateSessionId(userId: string): string {
+    const payload: JwtPayload = {
+        userId: userId,
+    }
+    const token = jwt.sign(payload, process.env.SESSION_SECRET!)
+    return token
+}
+
+
+/**
+ * 
+ * @param sessionId -  User's sessionId 
+ * @returns {redisKey} - User's session key stored on redis/
+ */
+export function verifySessionId(sessionId: string): string {
+    const payload = jwt.verify(sessionId, process.env.SESSION_SECRET!) as JwtPayload
+    return payload.userId
 };
 
 
 /**
  * 
  * @param userId 
- * @returns 
+ * @returns -
  */
-export async function genAccessToken(userId: string): Promise<string> {
-    try {
-        const payload: JwtPayload = {
-            userId: userId,
-        }
-        const token = await genToken(payload, process.env.JWT_ACCESS_TOKEN_EXPIRE!)
-        return token
-    } catch (error: unknown) {
-        throw error
+export function genEmailToken(userId: string): string {
+    const payload: JwtPayload = {
+        userId: userId,
     }
-}
 
-
-
-
-/**
- * 
- * @param token 
- * @returns 
- */
-export async function validateAccessToken(token: string): Promise<JwtPayload> {
-    try {
-        const payload: JwtPayload = await validateToken(token)
-        return payload
-    } catch (error: unknown) {
-        throw error
-    }
-};
-
-/**
- * 
- * @returns 
- */
-export async function genRefreshToken(userId: string): Promise<RefreshToken> {
-    try {
-        const tokenId = genUuid()
-        const payload: JwtPayload = {
-            userId: userId,
-            tokenId: tokenId,
-        }
-
-        const token = await genToken(payload, process.env.JWT_REFRESH_TOKEN_EXPIRE!)
-        const base64Encoded = Buffer.from(token).toString('base64');
-
-
-        const refreshToken: RefreshToken = {
-            userId: userId,
-            tokenId: tokenId,
-            token: base64Encoded,
-        }
-
-        return refreshToken
-    } catch (error: unknown) {
-        throw error
-    }
+    return jwt.sign(payload, process.env.JWT_SECRET!)
 }
 
 /**
@@ -124,54 +43,11 @@ export async function genRefreshToken(userId: string): Promise<RefreshToken> {
  * @param token 
  * @returns 
  */
-export async function validateRefreshToken(token: string): Promise<JwtPayload> {
-    try {
-        const decoded = Buffer.from(token, 'base64').toString('utf-8')
-        if (!decoded) {
-            throw new Error('Refresh token validation failed.')
-        }
-        const payload: JwtPayload = await validateToken(decoded)
-        return payload
-    } catch (error: unknown) {
-        throw error
-    }
+export function verifyEmailToken(token: string): string {
+    const payload = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload
+    return payload.userId
 };
 
-
-
-
-
-/**
- * 
- * @param userId 
- * @returns 
- */
-export async function genEmailToken(userId: string): Promise<string> {
-    try {
-        const payload: JwtPayload = {
-            userId: userId,
-        }
-        const token = await genToken(payload, process.env.JWT_EMAIL_TOKEN_EXPIRE!)
-        return token
-    } catch (error: unknown) {
-        throw error
-    }
-}
-
-
-/**
- * 
- * @param token 
- * @returns 
- */
-export async function validateEmailToken(token: string): Promise<string> {
-    try {
-        const { userId } = await validateToken(token)
-        return userId
-    } catch (error: unknown) {
-        throw error
-    }
-};
 
 
 

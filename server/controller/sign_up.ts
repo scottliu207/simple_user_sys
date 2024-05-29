@@ -4,14 +4,14 @@ import { BaseUser } from '../model/user_profile';
 import { SignUpResult } from '../model/response';
 import { SignUpRequest } from '../model/request';
 import { hashPassword } from '../utils/hash';
-import { ErrDataAlreadyExists, ErrInvalidRequest, ErrSomethingWentWrong, ErrorCode, ErrNone, ErrPasswordNotMatch, ErrInvalidPassword } from '../err/error';
+import { ErrDataAlreadyExists, ErrInvalidRequest, ErrSomethingWentWrong, ErrNone, ErrPasswordNotMatch, ErrInvalidPassword } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
 import { GetUserOption } from '../model/sql_option';
 import { validatePassword } from '../utils/password_validator';
 import { sendEmail } from '../utils/email';
-import { setVerifyToken } from '../dao/cache/verify_token';
-import { genUuid } from '../utils/gen_uuid';
 import { genEmailToken } from '../utils/token';
+import { genUuid } from '../utils/gen_uuid';
+import { setEmailToken } from '../dao/cache/email_token';
 
 /**
  * Handles user sign-up.
@@ -58,37 +58,38 @@ export async function signUp(req: Request, res: Response, next: NextFunction): P
             return
         }
 
-        const emailOption: GetUserOption = {
+        const emailOpt: GetUserOption = {
             email: email,
         }
 
-        const emailExist = await getOneUser(emailOption)
-        if (emailExist) {
+        const userEmailExist = await getOneUser(emailOpt)
+        if (userEmailExist) {
             res.json(resFormattor(ErrDataAlreadyExists.newMsg('email already exists.')))
             return
         }
 
-        const nameOption: GetUserOption = {
+        const nameOpt: GetUserOption = {
             username: username,
         }
-        const nameExist = await getOneUser(nameOption)
-        if (nameExist) {
+        const usernameExist = await getOneUser(nameOpt)
+        if (usernameExist) {
             res.json(resFormattor(ErrDataAlreadyExists.newMsg('username already exists.')))
             return
         }
 
         const hashedPassword = await hashPassword(password)
-        const profile = new BaseUser(username, email, hashedPassword)
-        const userId = await profile.create()
+        const userId = genUuid()
+        const emailToken = genEmailToken(userId)
+
+        const profile = new BaseUser(username, email, hashedPassword, userId)
+        const _ = await profile.create()
 
         const result: SignUpResult = {
             userId: userId,
         }
 
-        const token = await genEmailToken(profile.id)
-
-        await setVerifyToken(profile.id, token)
-        await sendEmail(email, username, token)
+        await setEmailToken(userId, emailToken)
+        await sendEmail(email, username, emailToken)
 
         res.json(resFormattor(ErrNone, result))
         return

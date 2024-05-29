@@ -1,15 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
-import { LoginRequest, VerifyTokenRequest } from '../model/request';
-import { ErrDataNotFound, ErrInvalidRequest, ErrNone, ErrNotAuthorized, ErrSomethingWentWrong } from '../err/error';
+import { VerifyTokenRequest } from '../model/request';
+import { ErrDataNotFound, ErrInvalidRequest, ErrNone, ErrSomethingWentWrong } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
 import { getOneUser, updateUser } from '../dao/sql/user'
-import { genAccessToken, genRefreshToken, validateEmailToken } from '../utils/token';
-import { verifyPassword } from '../utils/hash';
-import { delAccessToken, setAccessToken } from '../dao/cache/access_token';
-import { delRefreshToken, setRefreshToken } from '../dao/cache/refresh_token';
 import { GetUserOption, UpdUserOption } from '../model/sql_option';
-import { delVerifyToken, getVerifyToken } from '../dao/cache/verify_token';
 import { UserStatus } from '../enum/user'
+import { verifyEmailToken } from '../utils/token';
+import { delEmailToken, getEmailToken } from '../dao/cache/email_token';
 
 /**
  * Handles user login.
@@ -25,14 +22,14 @@ export async function verifyEmail(req: Request, res: Response, next: NextFunctio
             return
         }
 
-        const userId = await validateEmailToken(token)
-        const vtCache = await getVerifyToken(userId)
+        const userId = verifyEmailToken(token)
 
-        if (token != vtCache) {
-            res.json(resFormattor(ErrNotAuthorized.newMsg('Wrong verification token.')))
+        const counts = await getEmailToken(userId)
+        if (counts < 1) {
+            res.json(resFormattor(ErrInvalidRequest.newMsg('Invalid token.')))
             return
         }
-
+        
         const getUserOpt: GetUserOption = {
             userId: userId,
         }
@@ -58,7 +55,7 @@ export async function verifyEmail(req: Request, res: Response, next: NextFunctio
         }
 
         await updateUser(userId, UpdateOpt)
-        await delVerifyToken(userId)
+        await delEmailToken(userId)
 
         res.json(resFormattor(ErrNone))
 

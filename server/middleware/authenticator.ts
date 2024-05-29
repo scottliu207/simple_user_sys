@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from "express";
-import { validateAccessToken } from "../utils/token";
+import { verifySessionId } from "../utils/token";
 import { resFormattor } from "../utils/res_formatter";
-import { ErrDataNotFound, ErrInvalidRequest, ErrNotAuthorized, ErrSomethingWentWrong } from "../err/error";
+import { ErrDataNotFound, ErrInvalidRequest, ErrInvalidUser, ErrNotAuthorized, ErrSomethingWentWrong } from "../err/error";
 import { CustomRequest } from "../model/request";
-import { getAccessToken } from "../dao/cache/access_token";
 import { GetUserOption } from "../model/sql_option";
 import { getOneUser } from '../dao/sql/user'
-import { AuthLevel } from "../enum/user";
+import { AuthLevel, UserStatus } from "../enum/user";
+import { getRedisSession } from "../dao/cache/session";
 
 /**
  * User authentication
@@ -16,30 +16,22 @@ import { AuthLevel } from "../enum/user";
  */
 export async function authenticator(req: CustomRequest, res: Response, next: NextFunction) {
     try {
-        const token = req.headers['api-token'] as string;
-        if (!token) {
+
+        const sessionId: string = req.cookies[process.env.USER_SESSION_NAME!]
+        if (!sessionId) {
             res.json(resFormattor(ErrNotAuthorized))
             return
         }
 
-        const payload = await validateAccessToken(token)
-        const value = await getAccessToken(payload.userId)
-        if (!value) {
+        const userId = verifySessionId(sessionId)
+
+        const sessionIdCache = await getRedisSession(userId)
+        if (!sessionIdCache) {
             res.json(resFormattor(ErrNotAuthorized))
             return
         }
 
-        const getOpt: GetUserOption = {
-            userId: payload.userId,
-        }
-
-        const profile = await getOneUser(getOpt)
-        if (!profile) {
-            res.json(resFormattor(ErrDataNotFound.newMsg('Email or password is incorrect.')))
-            return
-        }
-
-        req.user = profile
+        req.userId = userId
 
     } catch (error: unknown) {
         console.log('Unkonwn error occured: ' + error)
@@ -58,12 +50,27 @@ export async function authenticator(req: CustomRequest, res: Response, next: Nex
  */
 export async function isAdmin(req: CustomRequest, res: Response, next: NextFunction) {
     try {
-        if (!req.user) {
+        if (!req.userId) {
             res.json(resFormattor(ErrNotAuthorized))
             return
         }
 
-        if (req.user.authLevel != AuthLevel.ADMIN) {
+        const getUserOpt: GetUserOption = {
+            userId: req.userId,
+        }
+
+        const user = await getOneUser(getUserOpt)
+        if (!user) {
+            res.json(resFormattor(ErrDataNotFound.newMsg('User not found.')))
+            return
+        }
+
+        if (user.status != UserStatus.ENABLE) {
+            res.json(resFormattor(ErrInvalidUser))
+            return
+        }
+
+        if (user.authLevel != AuthLevel.ADMIN) {
             res.json(resFormattor(ErrNotAuthorized.newMsg('Invalid user auth level.')))
             return
         }

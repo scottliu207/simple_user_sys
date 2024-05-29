@@ -1,6 +1,6 @@
 import { SqlUserProfile, UserProfile } from '../../model/user_profile'
-import { execute, query } from '../../config/mysql'
-import { GetUserOption, UpdUserOption } from '../../model/sql_option'
+import { execute } from '../../config/mysql'
+import { GetUserOption, GetUsersOption, UpdUserOption } from '../../model/sql_option'
 import { paging } from '../../utils/paging'
 
 
@@ -141,22 +141,22 @@ export async function getOneUser(option: GetUserOption): Promise<UserProfile | n
 
 
     try {
-        let result = await query(sql, params)
-        if (result.length === 0) {
+        let [row] = await execute(sql, params)
+        if (!row) {
             return null
         }
 
-        const profileSql = result[0] as SqlUserProfile;
+        const result = row as SqlUserProfile;
         const profile: UserProfile = {
-            id: profileSql.id,
-            username: profileSql.username,
-            email: profileSql.email,
-            passphrase: profileSql.passphrase,
-            accountType: profileSql.account_type,
-            authLevel: profileSql.auth_level,
-            status: profileSql.status,
-            createTime: profileSql.create_time,
-            updateTime: profileSql.update_time,
+            id: result.id,
+            username: result.username,
+            email: result.email,
+            passphrase: result.passphrase,
+            accountType: result.account_type,
+            authLevel: result.auth_level,
+            status: result.status,
+            createTime: result.create_time,
+            updateTime: result.update_time,
         }
 
         return profile
@@ -169,11 +169,10 @@ export async function getOneUser(option: GetUserOption): Promise<UserProfile | n
 
 /** 
  * get a user's profile
- * @param {string } userId - user id 
- * @param {string } email  - user's email
+ * @param {string } option - option for get users 
  * @return {Promise<UserProfile|null>}
 */
-export async function getUsers(option: GetUserOption): Promise<UserProfile[] | null> {
+export async function getUsers(option: GetUsersOption): Promise<UserProfile[]> {
     let sql: string = ""
     let params: any[] = []
     let whereSql: string[] = []
@@ -200,8 +199,8 @@ export async function getUsers(option: GetUserOption): Promise<UserProfile[] | n
     }
 
     if (option.username) {
-        whereSql.push(" `username` = ? ")
-        params.push(option.username)
+        whereSql.push(" `username` LIKE ? ")
+        params.push(`%${option.username}%`)
     }
 
     if (option.status) {
@@ -209,23 +208,26 @@ export async function getUsers(option: GetUserOption): Promise<UserProfile[] | n
         params.push(option.status)
     }
 
-    if (whereSql.length == 0) {
-        throw new Error("must provide at least one param for where caluse")
+    if (option.authLevel) {
+        whereSql.push(" `auth_level` = ? ")
+        params.push(option.authLevel)
+    }
+
+    if (whereSql.length != 0) {
+        sql = sql.concat(" WHERE ", whereSql.join(" AND "))
     }
 
     if (option.page && option.perPage) {
         const pagingSql = paging(option.page, option.perPage)
-            sql += " LIMIT ? OFFEST ? "
-            params.push(pagingSql.limit)
-            params.push(pagingSql.offset)
+        sql += " LIMIT ? OFFSET ? "
+        params.push(pagingSql.limit)
+        params.push(pagingSql.offset)
     }
-
-    sql = sql.concat(" WHERE ", whereSql.join(" AND "))
 
     try {
         let users: UserProfile[] = []
-        let result = await query(sql, params)
-        result.forEach((v) => {
+        let rows = await execute(sql, params)
+        rows.forEach((v) => {
             const profileDb = v as SqlUserProfile
             const user: UserProfile = {
                 id: profileDb.id,
@@ -241,6 +243,52 @@ export async function getUsers(option: GetUserOption): Promise<UserProfile[] | n
             users.push(user)
         })
         return users
+
+    } catch (error: unknown) {
+        console.log("sql exec failed, Err: " + error)
+        throw error
+    }
+}
+
+export async function getTotalUser(option: GetUsersOption): Promise<number> {
+    let sql: string = ""
+    let params: any[] = []
+    let whereSql: string[] = []
+    sql += " SELECT COUNT(*) AS `total` FROM `profile`"
+
+    if (option.userId) {
+        whereSql.push(" `id` = ? ")
+        params.push(option.userId)
+    }
+
+    if (option.email) {
+        whereSql.push(" `email` = ? ")
+        params.push(option.email)
+    }
+
+    if (option.username) {
+        whereSql.push(" `username` LIKE ? ")
+        params.push(`%${option.username}%`)
+    }
+
+    if (option.status) {
+        whereSql.push(" `status` = ? ")
+        params.push(option.status)
+    }
+
+    if (option.authLevel) {
+        whereSql.push(" `auth_level` = ? ")
+        params.push(option.authLevel)
+    }
+
+    if (whereSql.length != 0) {
+        sql = sql.concat(" WHERE ", whereSql.join(" AND "))
+    }
+
+    try {
+        let [row] = await execute(sql, params)
+        const result = row as { total: number }
+        return result.total
 
     } catch (error: unknown) {
         console.log("sql exec failed, Err: " + error)

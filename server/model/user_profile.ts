@@ -36,8 +36,13 @@ export class BaseUser implements UserProfile {
     public createTime?: Date;
     public updateTime?: Date;
 
-    constructor(username: string, email: string, passphrase: string) {
-        this.id = genUuid()
+    constructor(username: string, email: string, passphrase: string, id?: string) {
+        
+        if (!id) {
+            this.id = genUuid()
+        }else {
+            this.id = id
+        }
         this.username = username
         this.authLevel = AuthLevel.USER
         this.email = email

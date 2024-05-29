@@ -1,14 +1,14 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, CookieOptions } from 'express';
 import { LoginRequest } from '../model/request';
 import { ErrDataNotFound, ErrInvalidRequest, ErrNone, ErrSomethingWentWrong } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
 import { getOneUser } from '../dao/sql/user'
-import { genAccessToken, genRefreshToken } from '../utils/token';
 import { verifyPassword } from '../utils/hash';
-import { delAccessToken, setAccessToken } from '../dao/cache/access_token';
-import { delRefreshToken, setRefreshToken } from '../dao/cache/refresh_token';
 import { GetUserOption } from '../model/sql_option';
 import { UserStatus } from '../enum/user';
+import { generateSessionId } from '../utils/token';
+import { delRedisSession, setRedisSession } from '../dao/cache/session';
+import ms from 'ms';
 
 /**
  * Handles user login.
@@ -23,7 +23,6 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
             res.json(resFormattor(ErrInvalidRequest.newMsg('email is required.')))
             return
         }
-
 
         if (!password) {
             res.json(resFormattor(ErrInvalidRequest.newMsg('password is required.')))
@@ -51,16 +50,21 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
             return
         }
 
-        await delAccessToken(existedUser.id)
-        await delRefreshToken(existedUser.id)
+        const sessionId = generateSessionId(existedUser.id)
 
-        const accessToken = await genAccessToken(existedUser.id)
-        const refreshToken = await genRefreshToken(existedUser.id)
+        await delRedisSession(existedUser.id)
+        await setRedisSession(existedUser.id, sessionId)
 
-        await setAccessToken(existedUser)
-        await setRefreshToken(refreshToken.userId, refreshToken.token)
+        const cookieOpt: CookieOptions = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV == 'production',
+            maxAge: ms(process.env.USER_SESSION_EXPIRE!),
+            sameSite: 'lax',
+        }
 
-        res.json(resFormattor(ErrNone, { accessToken: accessToken, refreshToken: refreshToken.token }))
+        res.cookie(process.env.USER_SESSION_NAME!, sessionId, cookieOpt);
+
+        res.json(resFormattor(ErrNone))
 
     } catch (error: unknown) {
         console.log('Unkonwn error occured: ' + error)

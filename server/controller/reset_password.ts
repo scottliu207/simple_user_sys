@@ -1,12 +1,9 @@
-import { Request, Response, NextFunction } from 'express';
-import { CustomRequest, LoginRequest, ResetPasswordReq } from '../model/request';
+import { Response, NextFunction } from 'express';
+import { CustomRequest, ResetPasswordReq } from '../model/request';
 import { ErrDataNotFound, ErrInvalidPassword, ErrInvalidRequest, ErrInvalidUser, ErrNone, ErrNotAuthorized, ErrPasswordNotMatch, ErrSomethingWentWrong } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
 import { getOneUser, updateUser } from '../dao/sql/user'
-import { genAccessToken, genRefreshToken } from '../utils/token';
 import { hashPassword, verifyPassword } from '../utils/hash';
-import { delAccessToken, setAccessToken } from '../dao/cache/access_token';
-import { delRefreshToken, setRefreshToken } from '../dao/cache/refresh_token';
 import { GetUserOption, UpdUserOption } from '../model/sql_option';
 import { validatePassword } from '../utils/password_validator';
 import { UserStatus } from '../enum/user';
@@ -19,12 +16,22 @@ import { UserStatus } from '../enum/user';
  */
 export async function resetPassword(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-        if (!req.user) {
+        if (!req.userId) {
             res.json(resFormattor(ErrNotAuthorized))
             return
         }
 
-        if (req.user.status != UserStatus.ENABLE) {
+        const getUserOpt: GetUserOption = {
+            userId: req.userId,
+        }
+
+        const user = await getOneUser(getUserOpt)
+        if (!user) {
+            res.json(resFormattor(ErrDataNotFound.newMsg('User not found.')))
+            return
+        }
+
+        if (user.status != UserStatus.ENABLE) {
             res.json(resFormattor(ErrInvalidUser))
             return
         }
@@ -46,21 +53,7 @@ export async function resetPassword(req: CustomRequest, res: Response, next: Nex
             return
         }
 
-        const getOpt: GetUserOption = {
-            userId: req.user.id,
-        }
 
-        const profile = await getOneUser(getOpt)
-        if (!profile) {
-            res.json(resFormattor(ErrDataNotFound.newMsg('Email or password is incorrect.')))
-            return
-        }
-
-        const match = await verifyPassword(oldPassword, profile.passphrase)
-        if (!match) {
-            res.json(resFormattor(ErrDataNotFound.newMsg('Email or password is incorrect.')))
-            return
-        }
 
         if (!validatePassword(newPassword)) {
             res.json(resFormattor(ErrInvalidPassword.newMsg('Invalid password')))
@@ -77,13 +70,19 @@ export async function resetPassword(req: CustomRequest, res: Response, next: Nex
             return
         }
 
+        const match = await verifyPassword(oldPassword, user.passphrase)
+        if (!match) {
+            res.json(resFormattor(ErrDataNotFound.newMsg('password is incorrect.')))
+            return
+        }
+
         const hashedPassword = await hashPassword(newPassword)
 
         const updOpt: UpdUserOption = {
             passphrase: hashedPassword,
         }
 
-        await updateUser(profile.id, updOpt)
+        await updateUser(user.id, updOpt)
 
         res.json(resFormattor(ErrNone))
 

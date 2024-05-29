@@ -26,6 +26,7 @@ export enum ErrorCode {
     PASSWORD_NOT_MATCH = 1005,
     INVALID_PASSWORD = 1006,
     INVALID_USER = 1007,
+    VERIFY_MAX_TRY_EXCEED = 1008,
 
     // Server Error
     SOMETHING_WENT_WRONG = 3000,
@@ -38,5 +39,6 @@ export const ErrPasswordNotMatch = new CustomError(400, ErrorCode.PASSWORD_NOT_M
 export const ErrInvalidPassword = new CustomError(400, ErrorCode.INVALID_PASSWORD, 'Invalid password')
 export const ErrDataAlreadyExists = new CustomError(400, ErrorCode.DATA_ALREADY_EXISTS, 'Data already exists.')
 export const ErrDataNotFound = new CustomError(400, ErrorCode.DATA_NOT_FOUND, 'Data not found.')
-export const ErrNotAuthorized = new CustomError(400, ErrorCode.NOT_AUTHORIZED, 'Not authorized.')
+export const ErrNotAuthorized = new CustomError(401, ErrorCode.NOT_AUTHORIZED, 'Not authorized.')
+export const ErrMaxVerifyTryExceed = new CustomError(401, ErrorCode.VERIFY_MAX_TRY_EXCEED, 'Exceed max try count.')
 export const ErrSomethingWentWrong = new CustomError(500, ErrorCode.SOMETHING_WENT_WRONG, 'Something went wrong.')

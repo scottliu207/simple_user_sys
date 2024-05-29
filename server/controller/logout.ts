@@ -2,12 +2,9 @@ import { Request, Response, NextFunction } from 'express';
 import { CustomRequest, LoginRequest } from '../model/request';
 import { ErrDataNotFound, ErrInvalidRequest, ErrNone, ErrNotAuthorized, ErrSomethingWentWrong } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
-import * as user from '../dao/sql/user'
-import { genAccessToken, genRefreshToken } from '../utils/token';
-import { verifyPassword } from '../utils/hash';
-import { delAccessToken, setAccessToken } from '../dao/cache/access_token';
-import { delRefreshToken, setRefreshToken } from '../dao/cache/refresh_token';
+import { delRedisSession } from '../dao/cache/session';
 import { GetUserOption } from '../model/sql_option';
+import { getOneUser } from '../dao/sql/user';
 
 /**
  * Handles user logout.
@@ -18,13 +15,24 @@ import { GetUserOption } from '../model/sql_option';
 export async function logout(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
     try {
 
-        if (!req.user) {
+        if (!req.userId) {
             res.json(resFormattor(ErrNotAuthorized))
             return
         }
 
-        await delAccessToken(req.user.id)
-        await delRefreshToken(req.user.id)
+        const getUserOpt: GetUserOption = {
+            userId: req.userId,
+        }
+
+        const user = await getOneUser(getUserOpt)
+        if (!user) {
+            res.json(resFormattor(ErrDataNotFound.newMsg('User not found.')))
+            return
+        }
+
+        await delRedisSession(user.id)
+
+        res.clearCookie(process.env.USER_SESSION_NAME!)
 
         res.json(resFormattor(ErrNone))
 

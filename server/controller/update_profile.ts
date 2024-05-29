@@ -1,14 +1,10 @@
 import { Response, NextFunction } from 'express';
 import { CustomRequest, UpdateProfileReq } from '../model/request';
-import { ErrDataNotFound, ErrInvalidUser, ErrNone, ErrNotAuthorized, ErrSomethingWentWrong } from '../err/error';
+import { ErrDataNotFound, ErrInvalidRequest, ErrInvalidUser, ErrNone, ErrNotAuthorized, ErrSomethingWentWrong } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
-import { updateUser } from '../dao/sql/user'
-import { genAccessToken, genRefreshToken } from '../utils/token';
-import { verifyPassword } from '../utils/hash';
-import { delAccessToken, setAccessToken } from '../dao/cache/access_token';
-import { delRefreshToken, setRefreshToken } from '../dao/cache/refresh_token';
-import { GetUserOption, UpdUserOption } from '../model/sql_option';
+import { getOneUser, updateUser } from '../dao/sql/user'
 import { UserStatus } from '../enum/user';
+import { GetUserOption, UpdUserOption } from '../model/sql_option';
 
 /**
  * Handles user logout.
@@ -19,23 +15,38 @@ import { UserStatus } from '../enum/user';
 export async function updateProfile(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
     try {
 
-        if (!req.user) {
+        if (!req.userId) {
             res.json(resFormattor(ErrNotAuthorized))
             return
         }
 
-        if (req.user.status != UserStatus.ENABLE) {
+        const getUserOpt: GetUserOption = {
+            userId: req.userId,
+        }
+
+        const user = await getOneUser(getUserOpt)
+        if (!user) {
+            res.json(resFormattor(ErrDataNotFound.newMsg('User not found.')))
+            return
+        }
+
+        if (user.status != UserStatus.ENABLE) {
             res.json(resFormattor(ErrInvalidUser))
             return
         }
 
         const { username } = req.body as UpdateProfileReq
 
+        if (!username) {
+            res.json(resFormattor(ErrInvalidRequest.newMsg('username is required.')))
+            return
+        }
+
         const updOpt: UpdUserOption = {
             username: username,
         }
 
-        await updateUser(req.user.id, updOpt)
+        await updateUser(user.id, updOpt)
 
         res.json(resFormattor(ErrNone))
 

@@ -5,6 +5,7 @@ import { pingRedis, redis } from '../config/redis';
 import { pingMySql, pool as mysqlPool } from '../config/mysql';
 import express from 'express';
 import { adminRouteV1 } from '../routes/admin';
+import cookieParser from 'cookie-parser';
 
 
 const app = express();
@@ -27,6 +28,7 @@ export async function start() {
     }
 
     app.use(express.json())
+    app.use(cookieParser())
     app.use(responseHandler)
 
     app.use('/api/user/v1', userRouteV1)

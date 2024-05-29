@@ -45,32 +45,11 @@ export async function pingMySql() {
  * @param {any[]} [params] - The parameters for the query.
  * @returns {Promise<mysql.QueryResult>} - The results of the query.
  */
-export async function query(query: string, params?: any[]): Promise<mysql.RowDataPacket[]> {
+export async function execute(query: string, params?: any[]): Promise<mysql.RowDataPacket[]> {
     let connection = await pool.getConnection()
 
     try {
-        const [res] = await connection.query<mysql.RowDataPacket[]>(query, params)
-        return res;
-    } catch (error) {
-        console.log('SQL query failed, error: ', error)
-        throw error;
-    } finally {
-        connection.release();
-    }
-}
-
-
-/**
- * Executes a SQL query.
- * @param {string} query - The SQL query to execute.
- * @param {any[]} [params] - The parameters for the query.
- * @returns {Promise<mysql.QueryResult>} - The results of the query.
- */
-export async function execute(query: string, params?: any[]): Promise<mysql.QueryResult> {
-    let connection = await pool.getConnection()
-
-    try {
-        const [results] = await connection.execute(query, params)
+        const [results] = await connection.execute<mysql.RowDataPacket[]>(query, params)
         return results;
     } catch (error) {
         console.log('SQL execute failed, error: ', error)
