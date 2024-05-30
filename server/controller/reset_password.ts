@@ -2,7 +2,7 @@ import { Response, NextFunction } from 'express';
 import { CustomRequest, ResetPasswordReq } from '../model/request';
 import { ErrDataNotFound, ErrInvalidPassword, ErrInvalidRequest, ErrInvalidUser, ErrNone, ErrNotAuthorized, ErrPasswordNotMatch, ErrSomethingWentWrong } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
-import { getOneUser, updateUser } from '../dao/sql/user'
+import { getOneUser, updateUser } from '../dao/sql/profile'
 import { hashPassword, verifyPassword } from '../utils/hash';
 import { GetUserOption, UpdUserOption } from '../model/sql_option';
 import { validatePassword } from '../utils/password_validator';
@@ -52,8 +52,6 @@ export async function resetPassword(req: CustomRequest, res: Response, next: Nex
             res.json(resFormattor(ErrInvalidRequest.newMsg('newConfirmPassword is required.')))
             return
         }
-
-
 
         if (!validatePassword(newPassword)) {
             res.json(resFormattor(ErrInvalidPassword.newMsg('Invalid password')))

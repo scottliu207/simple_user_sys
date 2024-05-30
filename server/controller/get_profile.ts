@@ -4,7 +4,7 @@ import { ErrDataNotFound, ErrInvalidUser, ErrNone, ErrNotAuthorized, ErrSomethin
 import { resFormattor } from '../utils/res_formatter';
 import { UserStatus } from '../enum/user';
 import { GetUserOption } from '../model/sql_option';
-import { getOneUser } from '../dao/sql/user';
+import { getOneUser } from '../dao/sql/profile';
 import { GetUserResult } from '../model/response';
 
 /**

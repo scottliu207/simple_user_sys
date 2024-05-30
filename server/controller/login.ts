@@ -2,7 +2,7 @@ import { Request, Response, NextFunction, CookieOptions } from 'express';
 import { LoginRequest } from '../model/request';
 import { ErrDataNotFound, ErrInvalidRequest, ErrNone, ErrSomethingWentWrong } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
-import { getOneUser } from '../dao/sql/user'
+import { getOneUser } from '../dao/sql/profile'
 import { verifyPassword } from '../utils/hash';
 import { GetUserOption } from '../model/sql_option';
 import { UserStatus } from '../enum/user';

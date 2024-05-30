@@ -6,7 +6,7 @@ import { sendEmail } from '../utils/email';
 import { genEmailToken, verifyEmailToken } from '../utils/token';
 import { delEmailToken, getEmailToken, setEmailToken } from '../dao/cache/email_token';
 import { GetUserOption } from '../model/sql_option';
-import { getOneUser } from '../dao/sql/user';
+import { getOneUser } from '../dao/sql/profile';
 import { UserStatus } from '../enum/user';
 
 /**

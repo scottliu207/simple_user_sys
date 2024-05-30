@@ -14,9 +14,7 @@ const option: mysql.PoolOptions = {
 
 export const pool = mysql.createPool(option)
 
-
 export async function pingMySql() {
-
     let conn: mysql.PoolConnection | null = null;
 
     for (let i = 1; i <= 10; i++) {

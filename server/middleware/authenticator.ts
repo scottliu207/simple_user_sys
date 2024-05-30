@@ -4,7 +4,7 @@ import { resFormattor } from "../utils/res_formatter";
 import { ErrDataNotFound, ErrInvalidRequest, ErrInvalidUser, ErrNotAuthorized, ErrSomethingWentWrong } from "../err/error";
 import { CustomRequest } from "../model/request";
 import { GetUserOption } from "../model/sql_option";
-import { getOneUser } from '../dao/sql/user'
+import { getOneUser } from '../dao/sql/profile'
 import { AuthLevel, UserStatus } from "../enum/user";
 import { getRedisSession } from "../dao/cache/session";
 

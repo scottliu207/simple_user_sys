@@ -67,6 +67,14 @@ Create a simple app where users can sign up and sign in from a landing page into
     1. Timestamp of user sign up.
     2. Number of times logged in.
     3. Timestamp of the last user session. For users with cookies, session and login may be different, since the user may not need to log in to start a new session.
+
+       - Tracks api calls
+       - a middleware to update the timestamp for each user on redis 
+       - every 15m launch a cronjob to scrap the last session from redis to the database
+       - schema will be like user_id, start_time, end_time for tracking a user session per day.
+       - when scraping, update per day's session, also user_profile.last_session_time
+       
+
 - **User Statistics [30 points]**
     
     At the top of the user database dashboard, show the following statistics:

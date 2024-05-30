@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { getOneUser } from '../dao/sql/user';
+import { getOneUser } from '../dao/sql/profile';
 import { BaseUser } from '../model/user_profile';
 import { SignUpResult } from '../model/response';
 import { SignUpRequest } from '../model/request';

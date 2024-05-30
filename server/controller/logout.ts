@@ -4,7 +4,7 @@ import { ErrDataNotFound, ErrInvalidRequest, ErrNone, ErrNotAuthorized, ErrSomet
 import { resFormattor } from '../utils/res_formatter';
 import { delRedisSession } from '../dao/cache/session';
 import { GetUserOption } from '../model/sql_option';
-import { getOneUser } from '../dao/sql/user';
+import { getOneUser } from '../dao/sql/profile';
 
 /**
  * Handles user logout.

@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { VerifyTokenRequest } from '../model/request';
 import { ErrDataNotFound, ErrInvalidRequest, ErrNone, ErrSomethingWentWrong } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
-import { getOneUser, updateUser } from '../dao/sql/user'
+import { getOneUser, updateUser } from '../dao/sql/profile'
 import { GetUserOption, UpdUserOption } from '../model/sql_option';
 import { UserStatus } from '../enum/user'
 import { verifyEmailToken } from '../utils/token';

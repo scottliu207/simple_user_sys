@@ -1,5 +1,4 @@
 import { AuthLevel, UserStatus } from "../enum/user";
-import { Paging } from "../utils/paging";
 
 export interface GetUserOption {
     userId?: string;
@@ -25,4 +24,10 @@ export interface UpdUserOption {
     passphrase?: string;
     accountType?: string;
     status?: UserStatus;
+}
+
+export interface GetLoginRecordsOption {
+    userId?: string
+    page?: number
+    perPage?: number
 }

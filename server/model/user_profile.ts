@@ -1,18 +1,7 @@
 import { AccountType, AuthLevel, UserStatus } from '../enum/user'
-import { createUser } from "../dao/sql/user";
+import { createUser } from "../dao/sql/profile";
 import { genUuid } from '../utils/gen_uuid';
 
-export interface SqlUserProfile {
-    id: string;
-    username: string;
-    account_type: AccountType;
-    auth_level: AuthLevel;
-    email: string;
-    passphrase: string;
-    status: UserStatus;
-    create_time?: Date;
-    update_time?: Date;
-}
 export interface UserProfile {
     id: string;
     username: string;
@@ -81,6 +70,13 @@ export class GoogleUser extends BaseUser implements UserProfile {
     login(): string {
         return ""
     }
+}
+
+export interface LoginRecord {
+    id: string;
+    userId: string;
+    createTime?: Date;
+    updateTime?: Date;
 }
 
 
