@@ -9,7 +9,7 @@ import { resFormattor } from '../utils/res_formatter';
 import { GetUserOption } from '../model/sql_option';
 import { validatePassword } from '../utils/password_validator';
 import { sendEmail } from '../utils/email';
-import { genEmailToken } from '../utils/token';
+import { generateJwtToken } from '../utils/token';
 import { genUuid } from '../utils/gen_uuid';
 import { setEmailToken } from '../dao/cache/email_token';
 
@@ -79,8 +79,7 @@ export async function signUp(req: Request, res: Response, next: NextFunction): P
 
         const hashedPassword = await hashPassword(password)
         const userId = genUuid()
-        const emailToken = genEmailToken(userId)
-
+        const emailToken = generateJwtToken(userId)
         const profile = new BaseUser(username, email, hashedPassword, userId)
         const _ = await profile.create()
 

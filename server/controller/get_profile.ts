@@ -36,10 +36,10 @@ export async function getProfile(req: CustomRequest, res: Response, next: NextFu
         }
 
         let result: GetUserResult = {
-            userId:user.id,
-            username:user.username,
-            email:user.email,
-            accountType:user.accountType,
+            userId: user.id,
+            username: user.username,
+            email: user.email,
+            accountType: user.accountType,
         }
 
         res.json(resFormattor(ErrNone, result))

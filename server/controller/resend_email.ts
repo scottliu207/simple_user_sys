@@ -1,9 +1,9 @@
 import { Response, NextFunction } from 'express';
 import { CustomRequest, ResendEmailRequest } from '../model/request';
-import { ErrSomethingWentWrong, ErrNone, ErrInvalidRequest, ErrDataAlreadyExists, ErrDataNotFound, ErrMaxVerifyTryExceed } from '../err/error';
+import { ErrSomethingWentWrong, ErrNone, ErrInvalidRequest, ErrDataNotFound, ErrMaxVerifyTryExceed } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
 import { sendEmail } from '../utils/email';
-import { genEmailToken, verifyEmailToken } from '../utils/token';
+import { generateJwtToken, verifyJwtToken } from '../utils/token';
 import { delEmailToken, getEmailToken, setEmailToken } from '../dao/cache/email_token';
 import { GetUserOption } from '../model/sql_option';
 import { getOneUser } from '../dao/sql/user';
@@ -24,7 +24,7 @@ export async function resendEmail(req: CustomRequest, res: Response, next: NextF
             return
         }
 
-        const userId = verifyEmailToken(token)
+        const userId = verifyJwtToken(token)
         const count = await getEmailToken(userId)
         if (count<1) {
             res.json(resFormattor(ErrInvalidRequest.newMsg('Invalid token.')))
@@ -52,7 +52,9 @@ export async function resendEmail(req: CustomRequest, res: Response, next: NextF
             return
         }
 
-        const emailToken = genEmailToken(userId)
+        await delEmailToken(user.id)
+
+        const emailToken = generateJwtToken(userId)
         const _ = await setEmailToken(userId, emailToken)
         await sendEmail(user.email, user.username, emailToken)
 

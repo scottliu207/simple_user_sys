@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction, CookieOptions } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { LoginRequest } from '../model/request';
 import { ErrDataNotFound, ErrInvalidRequest, ErrNone, ErrSomethingWentWrong } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
@@ -6,9 +6,8 @@ import { getOneUser } from '../dao/sql/user'
 import { verifyPassword } from '../utils/hash';
 import { GetUserOption } from '../model/sql_option';
 import { UserStatus } from '../enum/user';
-import { generateSessionId } from '../utils/token';
-import { delRedisSession, setRedisSession } from '../dao/cache/session';
-import ms from 'ms';
+import { generateToken } from '../utils/token';
+import { Token, redisDel, redisGetUserToken, redisSet, redisSetUserToken, redisUpdateAccessToken } from '../dao/cache/token';
 
 /**
  * Handles user login.
@@ -33,39 +32,44 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
             email: email,
         }
 
-        const existedUser = await getOneUser(getUserOpt)
-        if (!existedUser) {
+        const user = await getOneUser(getUserOpt)
+        if (!user) {
             res.json(resFormattor(ErrDataNotFound.newMsg('Email or password is incorrect.')))
             return
         }
 
-        if (existedUser.status != UserStatus.ENABLE) {
+        if (user.status != UserStatus.ENABLE) {
             res.json(resFormattor(ErrInvalidRequest.newMsg('Inavlid User.')))
             return
         }
 
-        const match = await verifyPassword(password, existedUser.passphrase)
+        const match = await verifyPassword(password, user.passphrase)
         if (!match) {
             res.json(resFormattor(ErrDataNotFound.newMsg('Email or password is incorrect.')))
             return
         }
 
-        const sessionId = generateSessionId(existedUser.id)
+        const accessToken: Token = { token: generateToken(), expriresIn: process.env.JWT_ACCESS_TOKEN_EXPIRE! }
+        let userToken = await redisGetUserToken(user.id)
 
-        await delRedisSession(existedUser.id)
-        await setRedisSession(existedUser.id, sessionId)
+        if (!userToken.refreshToken) {
+            const refreshToken: Token = { token: generateToken(), expriresIn: process.env.JWT_REFRESH_TOKEN_EXPIRE! }
+            await redisSetUserToken(user.id, accessToken, refreshToken)
+            await redisSet(accessToken.token, user.id, accessToken.expriresIn)
+            await redisSet(refreshToken.token, user.id, refreshToken.expriresIn)
+            userToken = {
+                accessToken: accessToken.token,
+                refreshToken: refreshToken.token,
+            }
 
-        const cookieOpt: CookieOptions = {
-            httpOnly: true,
-            secure: process.env.NODE_ENV == 'production',
-            maxAge: ms(process.env.USER_SESSION_EXPIRE!),
-            sameSite: 'lax',
+        } else {
+            await redisDel(userToken.accessToken)
+            await redisUpdateAccessToken(user.id, accessToken.token)
+            await redisSet(accessToken.token, user.id, accessToken.expriresIn)
+            userToken.accessToken = accessToken.token
         }
 
-        res.cookie(process.env.USER_SESSION_NAME!, sessionId, cookieOpt);
-
-        res.json(resFormattor(ErrNone))
-
+        res.json(resFormattor(ErrNone, userToken))
     } catch (error: unknown) {
         console.log('Unkonwn error occured: ' + error)
         res.json(resFormattor(ErrSomethingWentWrong))
