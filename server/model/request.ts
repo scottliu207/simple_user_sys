@@ -3,6 +3,7 @@ import { UserProfile } from "./user_profile";
 import { UserStatus } from "../enum/user";
 
 export interface CustomRequest extends Request {
+    accessToken?: string;
     userId?: string;
 }
 

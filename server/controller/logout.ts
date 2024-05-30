@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
-import { CustomRequest, LoginRequest } from '../model/request';
-import { ErrDataNotFound, ErrInvalidRequest, ErrNone, ErrNotAuthorized, ErrSomethingWentWrong } from '../err/error';
+import { Response, NextFunction } from 'express';
+import { CustomRequest, } from '../model/request';
+import { ErrDataNotFound, ErrNone, ErrNotAuthorized, ErrSomethingWentWrong } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
-import { delRedisSession } from '../dao/cache/session';
+import { getUserTokenKey, redisClearUserToken, redisDel, redisGetUserToken } from '../dao/cache/token';
 import { GetUserOption } from '../model/sql_option';
 import { getOneUser } from '../dao/sql/profile';
 
@@ -30,10 +30,14 @@ export async function logout(req: CustomRequest, res: Response, next: NextFuncti
             return
         }
 
-        await delRedisSession(user.id)
+        const userToken = await redisGetUserToken(user.id)
+        if (userToken) {
+            const key = getUserTokenKey(user.id)
+            await redisDel(key)
+            await redisClearUserToken(user.id, userToken)
+        }
 
         res.clearCookie(process.env.USER_SESSION_NAME!)
-
         res.json(resFormattor(ErrNone))
 
     } catch (error: unknown) {

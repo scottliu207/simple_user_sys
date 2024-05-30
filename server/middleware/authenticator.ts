@@ -1,12 +1,12 @@
-import { NextFunction, Request, Response } from "express";
-import { verifySessionId } from "../utils/token";
+import { NextFunction, Response } from "express";
+import { } from "../utils/token";
 import { resFormattor } from "../utils/res_formatter";
-import { ErrDataNotFound, ErrInvalidRequest, ErrInvalidUser, ErrNotAuthorized, ErrSomethingWentWrong } from "../err/error";
+import { ErrDataNotFound, ErrInvalidUser, ErrNotAuthorized, ErrSomethingWentWrong } from "../err/error";
 import { CustomRequest } from "../model/request";
 import { GetUserOption } from "../model/sql_option";
 import { getOneUser } from '../dao/sql/profile'
 import { AuthLevel, UserStatus } from "../enum/user";
-import { getRedisSession } from "../dao/cache/session";
+import { redisGet } from "../dao/cache/token";
 
 /**
  * User authentication
@@ -17,16 +17,13 @@ import { getRedisSession } from "../dao/cache/session";
 export async function authenticator(req: CustomRequest, res: Response, next: NextFunction) {
     try {
 
-        const sessionId: string = req.cookies[process.env.USER_SESSION_NAME!]
-        if (!sessionId) {
+        if (!req.accessToken) {
             res.json(resFormattor(ErrNotAuthorized))
             return
         }
 
-        const userId = verifySessionId(sessionId)
-
-        const sessionIdCache = await getRedisSession(userId)
-        if (!sessionIdCache) {
+        const userId = await redisGet(req.accessToken)
+        if (!userId) {
             res.json(resFormattor(ErrNotAuthorized))
             return
         }

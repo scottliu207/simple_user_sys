@@ -5,7 +5,7 @@ import { resFormattor } from '../utils/res_formatter';
 import { getOneUser, updateUser } from '../dao/sql/profile'
 import { GetUserOption, UpdUserOption } from '../model/sql_option';
 import { UserStatus } from '../enum/user'
-import { verifyEmailToken } from '../utils/token';
+import { verifyJwtToken } from '../utils/token';
 import { delEmailToken, getEmailToken } from '../dao/cache/email_token';
 
 /**
@@ -22,7 +22,7 @@ export async function verifyEmail(req: Request, res: Response, next: NextFunctio
             return
         }
 
-        const userId = verifyEmailToken(token)
+        const userId = verifyJwtToken(token)
 
         const counts = await getEmailToken(userId)
         if (counts < 1) {

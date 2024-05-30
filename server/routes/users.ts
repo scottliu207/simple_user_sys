@@ -8,6 +8,7 @@ import { updateProfile } from '../controller/update_profile'
 import { resetPassword } from '../controller/reset_password'
 import { verifyEmail } from '../controller/verify_email'
 import { resendEmail } from '../controller/resend_email'
+import { refreshToken } from '../controller/refreash_token'
 
 const userRouteV1: Router = express.Router()
 
@@ -15,9 +16,10 @@ userRouteV1.post("/signup", signUp)
 userRouteV1.post("/login", login)
 userRouteV1.post("/logout", authenticator, logout)
 userRouteV1.get("/profile", authenticator, getProfile)
-userRouteV1.post("/profile", authenticator, updateProfile)
+userRouteV1.post("/profile/update", authenticator, updateProfile)
 userRouteV1.post("/password/reset", authenticator, resetPassword)
 userRouteV1.post("/email/verify", verifyEmail)
 userRouteV1.post("/email/resend", resendEmail)
+userRouteV1.post("/token/refresh", refreshToken)
 
 export { userRouteV1 }

@@ -296,35 +296,3 @@ export async function getTotalUser(option: GetUsersOption): Promise<number> {
         throw error
     }
 }
-
-// export async function del(userId: string): Promise<void> {
-//     let sql: string = ''
-//     let params: any[] = []
-//     sql += ' INSERT INTO `user_db`.`profile` ( '
-//     sql += '   `id`, '
-//     sql += '   `account_type`, '
-//     sql += '   `email`, '
-//     sql += '   `passpharse`, '
-//     sql += '   `status`, '
-//     sql += '   `create_time`, '
-//     sql += '   `update_time`) '
-//     sql += ' VALUES (?, ?, ?, ?, ?, ?, ?, ?) '
-
-//     params.push(
-//         input.id,
-//         input.accountType,
-//         input.email,
-//         input.passpharse,
-//         input.status,
-//         input.createTime,
-//         input.updateTime,
-//     )
-
-//     try {
-//         await execute(sql, params)
-//     } catch (error: unknown) {
-//         let err = 'sql exec failed, Err: ' + error
-//         console.log(err)
-//         throw error
-//     }
-// }
