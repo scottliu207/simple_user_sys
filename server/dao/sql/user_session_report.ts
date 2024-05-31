@@ -1,8 +1,9 @@
 import { LoginRecord } from '../../model/user_profile'
 import { SqlLoginRecord } from '../../model/sql_schema'
 import { execute } from '../../config/mysql'
-import { GetLoginRecordsOption, GetUsersOption } from '../../model/sql_option'
+import { GetLoginRecordsOption, GetUserSessionReportOption, GetUsersOption } from '../../model/sql_option'
 import { paging } from '../../utils/paging'
+import { UserSessionReport } from '../../model/user_session_report'
 
 
 /** 
@@ -10,19 +11,26 @@ import { paging } from '../../utils/paging'
  * @param input  - user's profile
  * @return {Promise<void>}
 */
-export async function createLoginRecord(userId: string): Promise<void> {
+export async function createUserSessionReport(reportData: UserSessionReport): Promise<void> {
     let sql: string = ''
     let params: any[] = []
-    sql += ' INSERT INTO `login_record` ( '
-    sql += '   `user_id` ) '
-    sql += ' VALUES (?) '
+    sql += ' INSERT INTO `user_session_report` ( '
+    sql += '   `user_id`,  '
+    sql += '   `start_time`,  '
+    sql += '   `end_time`,  '
+    sql += '   `session_count` )  '
+    sql += ' VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE'
+    sql += ' `session_count`= `session_count`+ ?'
 
-    params.push(userId)
-
+    params.push(reportData.userId)
+    params.push(reportData.startTime)
+    params.push(reportData.endTime)
+    params.push(reportData.sessionCount)
+    params.push(reportData.sessionCount)
     try {
         await execute(sql, params)
     } catch (error: unknown) {
-        throw new Error(`sql exec failed-create login record user, ${error}`)
+        throw new Error(`sql exec failed-create user session report, ${error}`)
     }
 }
 
@@ -32,31 +40,34 @@ export async function createLoginRecord(userId: string): Promise<void> {
  * @param {string } option - option for get users 
  * @return {Promise<UserProfile|null>}
 */
-export async function getLoginRecords(option: GetLoginRecordsOption): Promise<LoginRecord[]> {
+export async function getUserSessionReport(option: GetUserSessionReportOption): Promise<LoginRecord[]> {
     let sql: string = ''
     let params: any[] = []
     let whereSql: string[] = []
     sql += ' SELECT '
-    sql += '   `id`, '
     sql += '   `user_id`, '
-    sql += '   `create_time`, '
-    sql += '   `update_time` '
-    sql += ' FROM `login_record` '
+    sql += '   `start_time`,  '
+    sql += '   `end_time`,  '
+    sql += '   `session_count` '
+    sql += ' FROM `user_session_report` '
 
     if (option.userId) {
         whereSql.push(' `user_id` = ? ')
         params.push(option.userId)
     }
 
-    if (whereSql.length != 0) {
-        sql = sql.concat(' WHERE ', whereSql.join(' AND '))
+    if (option.startTime) {
+        whereSql.push(' `start_time` = ? ')
+        params.push(option.startTime)
     }
 
-    if (option.page && option.perPage) {
-        const pagingSql = paging(option.page, option.perPage)
-        sql += ' LIMIT ? OFFSET ? '
-        params.push(pagingSql.limit)
-        params.push(pagingSql.offset)
+    if (option.startTime) {
+        whereSql.push(' `end_time` = ? ')
+        params.push(option.endTimme)
+    }
+
+    if (whereSql.length != 0) {
+        sql = sql.concat(' WHERE ', whereSql.join(' AND '))
     }
 
     try {
@@ -76,7 +87,7 @@ export async function getLoginRecords(option: GetLoginRecordsOption): Promise<Lo
         return records
 
     } catch (error: unknown) {
-        throw new Error(`sql exec failed-get login records, ${error}`)
+        throw new Error(`sql exec failed-get user session report, ${error}`)
     }
 }
 
@@ -89,7 +100,7 @@ export async function getTotalRecord(option: GetUsersOption): Promise<number> {
     let sql: string = ''
     let params: any[] = []
     let whereSql: string[] = []
-    sql += ' SELECT COUNT(*) AS `total` FROM `login_record`'
+    sql += ' SELECT COUNT(*) AS `total` FROM `user_session_report`'
 
     if (option.userId) {
         whereSql.push(' `user_id` = ? ')
@@ -106,7 +117,7 @@ export async function getTotalRecord(option: GetUsersOption): Promise<number> {
         return result.total
 
     } catch (error: unknown) {
-        throw new Error(`sql exec failed-get total login record, ${error}`)
+        throw new Error(`sql exec failed-get total user session report, ${error}`)
     }
 }
 
@@ -120,7 +131,7 @@ export async function getLoginRecordsCountByUser(option: GetLoginRecordsOption):
     let sql: string = ''
     let params: any[] = []
     let whereSql: string[] = []
-    sql += ' SELECT COUNT(*) as `total` FROM `login_record` '
+    sql += ' SELECT COUNT(*) as `total` FROM `user_session_report` '
 
     if (option.userId) {
         whereSql.push(' `user_id` = ? ')
@@ -137,18 +148,19 @@ export async function getLoginRecordsCountByUser(option: GetLoginRecordsOption):
         let records: LoginRecord[] = []
         let rows = await execute(sql, params)
         for (const row of rows) {
-            const dataDb = row as SqlLoginRecord
+            const recordDb = row as SqlLoginRecord
             const record: LoginRecord = {
-                id: dataDb.id,
-                userId: dataDb.user_id,
-                createTime: dataDb.create_time,
-                updateTime: dataDb.update_time,
+                id: recordDb.id,
+                userId: recordDb.user_id,
+                createTime: recordDb.create_time,
+                updateTime: recordDb.update_time,
             }
             records.push(record)
+
         }
         return records
 
     } catch (error: unknown) {
-        throw new Error(`sql exec failed-get login record count, ${error}`)
+        throw new Error(`sql exec failed-get user session report count by user, ${error}`)
     }
 }

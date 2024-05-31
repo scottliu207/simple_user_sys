@@ -2,9 +2,10 @@ import { Response, NextFunction } from 'express';
 import { CustomRequest, } from '../model/request';
 import { ErrDataNotFound, ErrNone, ErrNotAuthorized, ErrSomethingWentWrong } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
-import { getUserTokenKey, redisClearUserToken, redisDel, redisGetUserToken } from '../dao/cache/token';
+import { getUserTokenKey, redisClearUserToken, redisGetUserToken } from '../dao/cache/user_token';
 import { GetUserOption } from '../model/sql_option';
 import { getOneUser } from '../dao/sql/profile';
+import { redisDel } from '../dao/cache/basic';
 
 /**
  * Handles user logout.

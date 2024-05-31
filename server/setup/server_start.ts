@@ -8,6 +8,8 @@ import { adminRouteV1 } from '../routes/admin';
 import cookieParser from 'cookie-parser';
 import cors from 'cors'
 import { extractToken } from '../middleware/extract_token';
+import schedule from 'node-schedule'
+import { backUpUserActivites } from '../background/backup_user_activities';
 
 const app = express();
 
@@ -39,12 +41,15 @@ export async function start() {
     app.use(cors(corsOpt))
     app.use(responseHandler)
 
-    app.use('/api/user/v1', extractToken, userRouteV1)
-    app.use('/api/admin/v1', extractToken, adminRouteV1)
+    app.use(extractToken)
+    app.use('/api/user/v1', userRouteV1)
+    app.use('/api/admin/v1', adminRouteV1)
 
     app.listen(port, () => {
         console.log(`server is listening on ${port}`);
     });
+
+    schedule.scheduleJob(process.env.SCHEDULE_SETTING!, backUpUserActivites);
 }
 
 async function cleanUp() {

@@ -36,9 +36,7 @@ export async function createUser(input: UserProfile): Promise<void> {
     try {
         await execute(sql, params)
     } catch (error: unknown) {
-        let err = 'sql exec failed, Err: ' + error
-        console.log(err)
-        throw error
+        throw new Error(`sql exec failed-create user, ${error}`)
     }
 }
 
@@ -72,6 +70,11 @@ export async function updateUser(userId: string, option: UpdUserOption): Promise
         params.push(option.status)
     }
 
+    if (option.lastSessionTime) {
+        setSql.push('   `last_session_time` = ? ')
+        params.push(option.lastSessionTime)
+    }
+
     if (setSql.length == 0) {
         throw new Error('must provide at least one option param')
     }
@@ -85,8 +88,7 @@ export async function updateUser(userId: string, option: UpdUserOption): Promise
     try {
         await execute(sql, params)
     } catch (error: unknown) {
-        console.log('sql exec failed, Err: ' + error)
-        throw error
+        throw new Error(`sql exec failed-update user, ${error}`)
     }
 }
 
@@ -109,6 +111,7 @@ export async function getOneUser(option: GetUserOption): Promise<UserProfile | n
     sql += '   `email`, '
     sql += '   `passphrase`, '
     sql += '   `status`, '
+    sql += '   IF(`last_session_time`="0000-00-00 00:00:00",NULL,last_session_time), '
     sql += '   `create_time`, '
     sql += '   `update_time` '
     sql += ' FROM `profile` '
@@ -137,12 +140,11 @@ export async function getOneUser(option: GetUserOption): Promise<UserProfile | n
         throw new Error('must provide at least one param for where caluse')
     }
 
-
     sql = sql.concat(' WHERE ', whereSql.join(' AND '))
 
-
     try {
-        let [row] = await execute(sql, params)
+
+        const [row] = await execute(sql, params)
         if (!row) {
             return null
         }
@@ -156,6 +158,7 @@ export async function getOneUser(option: GetUserOption): Promise<UserProfile | n
             accountType: result.account_type,
             authLevel: result.auth_level,
             status: result.status,
+            lastSessionTime: result.last_session_time,
             createTime: result.create_time,
             updateTime: result.update_time,
         }
@@ -163,8 +166,7 @@ export async function getOneUser(option: GetUserOption): Promise<UserProfile | n
         return profile
 
     } catch (error: unknown) {
-        console.log('sql exec failed, Err: ' + error)
-        throw error
+        throw new Error(`sql exec failed-get one user, ${error}`)
     }
 }
 
@@ -185,6 +187,7 @@ export async function getUsers(option: GetUsersOption): Promise<UserProfile[]> {
     sql += '   `email`, '
     sql += '   `passphrase`, '
     sql += '   `status`, '
+    sql += '   IF(`last_session_time`="0000-00-00 00:00:00",NULL,last_session_time), '
     sql += '   `create_time`, '
     sql += '   `update_time` '
     sql += ' FROM `profile` '
@@ -228,26 +231,26 @@ export async function getUsers(option: GetUsersOption): Promise<UserProfile[]> {
     try {
         let users: UserProfile[] = []
         let rows = await execute(sql, params)
-        rows.forEach((v) => {
-            const profileDb = v as SqlUserProfile
+        for (const row of rows) {
+            const dbData = row as SqlUserProfile
             const user: UserProfile = {
-                id: profileDb.id,
-                username: profileDb.username,
-                email: profileDb.email,
-                passphrase: profileDb.passphrase,
-                accountType: profileDb.account_type,
-                authLevel: profileDb.auth_level,
-                status: profileDb.status,
-                createTime: profileDb.create_time,
-                updateTime: profileDb.update_time,
+                id: dbData.id,
+                username: dbData.username,
+                email: dbData.email,
+                passphrase: dbData.passphrase,
+                accountType: dbData.account_type,
+                authLevel: dbData.auth_level,
+                status: dbData.status,
+                lastSessionTime: dbData.last_session_time,
+                createTime: dbData.last_session_time,
+                updateTime: dbData.update_time,
             }
             users.push(user)
-        })
+        }
         return users
 
     } catch (error: unknown) {
-        console.log('sql exec failed, Err: ' + error)
-        throw error
+        throw new Error(`sql exec failed-get users, ${error}`)
     }
 }
 
@@ -292,7 +295,6 @@ export async function getTotalUser(option: GetUsersOption): Promise<number> {
         return result.total
 
     } catch (error: unknown) {
-        console.log('sql exec failed, Err: ' + error)
-        throw error
+        throw new Error(`sql exec failed-get total user, ${error}`)
     }
 }

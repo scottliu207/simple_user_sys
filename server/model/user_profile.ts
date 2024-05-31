@@ -10,6 +10,7 @@ export interface UserProfile {
     email: string;
     passphrase: string;
     status: UserStatus;
+    lastSessionTime?: Date;
     createTime?: Date;
     updateTime?: Date;
 }
@@ -22,14 +23,15 @@ export class BaseUser implements UserProfile {
     public email: string;
     public passphrase: string;
     public status: UserStatus;
+    public lastSessionTime?: Date;
     public createTime?: Date;
     public updateTime?: Date;
 
     constructor(username: string, email: string, passphrase: string, id?: string) {
-        
+
         if (!id) {
             this.id = genUuid()
-        }else {
+        } else {
             this.id = id
         }
         this.username = username

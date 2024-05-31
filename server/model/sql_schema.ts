@@ -8,8 +8,9 @@ export interface SqlUserProfile {
     email: string;
     passphrase: string;
     status: UserStatus;
-    create_time?: Date;
-    update_time?: Date;
+    last_session_time: Date;
+    create_time: Date;
+    update_time: Date;
 }
 
 export interface SqlLoginRecord {

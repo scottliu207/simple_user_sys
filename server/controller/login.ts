@@ -7,7 +7,9 @@ import { verifyPassword } from '../utils/hash';
 import { GetUserOption } from '../model/sql_option';
 import { UserStatus } from '../enum/user';
 import { generateToken } from '../utils/token';
-import { Token, redisDel, redisGetUserToken, redisSet, redisSetUserToken, redisUpdateAccessToken } from '../dao/cache/token';
+import { Token, redisGetUserToken, redisSetUserToken, redisUpdateAccessToken } from '../dao/cache/user_token';
+import { createLoginRecord } from '../dao/sql/login_record';
+import { redisDel, redisSet } from '../dao/cache/basic';
 
 /**
  * Handles user login.
@@ -68,6 +70,8 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
             await redisSet(accessToken.token, user.id, accessToken.expriresIn)
             userToken.accessToken = accessToken.token
         }
+
+        await createLoginRecord(user.id)
 
         res.json(resFormattor(ErrNone, userToken))
     } catch (error: unknown) {

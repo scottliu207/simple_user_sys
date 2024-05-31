@@ -1,12 +1,11 @@
 import { NextFunction, Response } from "express";
-import { } from "../utils/token";
 import { resFormattor } from "../utils/res_formatter";
 import { ErrDataNotFound, ErrInvalidUser, ErrNotAuthorized, ErrSomethingWentWrong } from "../err/error";
 import { CustomRequest } from "../model/request";
 import { GetUserOption } from "../model/sql_option";
 import { getOneUser } from '../dao/sql/profile'
 import { AuthLevel, UserStatus } from "../enum/user";
-import { redisGet } from "../dao/cache/token";
+import { redisGet } from "../dao/cache/basic";
 
 /**
  * User authentication
@@ -55,7 +54,6 @@ export async function isAdmin(req: CustomRequest, res: Response, next: NextFunct
         const getUserOpt: GetUserOption = {
             userId: req.userId,
         }
-
         const user = await getOneUser(getUserOpt)
         if (!user) {
             res.json(resFormattor(ErrDataNotFound.newMsg('User not found.')))

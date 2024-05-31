@@ -1,6 +1,6 @@
 export type Paging = {
-    limit: number;
-    offset: number;
+    limit: string;
+    offset: string;
 }
 
 /**
@@ -11,8 +11,8 @@ export type Paging = {
  */
 export function paging(page: number, perPage: number): Paging {
     const res: Paging = {
-        offset: (page - 1) * perPage,
-        limit: perPage,
+        offset: ((page - 1) * perPage).toString(),
+        limit: perPage.toString(),
     }
     return res
 }

@@ -31,6 +31,7 @@ export async function getUserList(req: CustomRequest, res: Response, next: NextF
             userId: userId,
             username: username,
             email: email,
+            status: status,
             authLevel: AuthLevel.USER,
             page: page,
             perPage: perPage

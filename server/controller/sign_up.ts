@@ -87,7 +87,7 @@ export async function signUp(req: Request, res: Response, next: NextFunction): P
             userId: userId,
         }
 
-        await setEmailToken(userId, emailToken)
+        await setEmailToken(userId)
         await sendEmail(email, username, emailToken)
 
         res.json(resFormattor(ErrNone, result))

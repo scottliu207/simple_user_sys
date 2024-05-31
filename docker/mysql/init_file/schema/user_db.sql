@@ -29,13 +29,15 @@ CREATE TABLE `user_db`.`login_record` (
   KEY `ID_User_ID`(`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='user login record';
 
--- user login record
+-- user session report
 CREATE TABLE `user_db`.`user_session_report` (
   `user_id` char(50) NOT NULL COMMENT 'user_id',
   `start_time` timestamp NOT NULL DEFAULT  '0000-00-00 00:00:00' COMMENT 'user session start time',
   `end_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'user session end time',
+  `session_count` bigint unsigned NOT NULL COMMENT 'user session counts',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create time',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'update time',
   PRIMARY KEY (`user_id`, `start_time`, `end_time`),
-  KEY `ID_User_ID`(`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='user login record';
+  KEY `ID_User_ID`(`user_id`),
+  KEY `ID_TimePeriod`(`start_time`, `end_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='user session report';

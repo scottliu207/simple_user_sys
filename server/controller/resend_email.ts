@@ -55,7 +55,7 @@ export async function resendEmail(req: CustomRequest, res: Response, next: NextF
         await delEmailToken(user.id)
 
         const emailToken = generateJwtToken(userId)
-        const _ = await setEmailToken(userId, emailToken)
+        const _ = await setEmailToken(userId)
         await sendEmail(user.email, user.username, emailToken)
 
         res.json(resFormattor(ErrNone))

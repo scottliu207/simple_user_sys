@@ -24,10 +24,17 @@ export interface UpdUserOption {
     passphrase?: string;
     accountType?: string;
     status?: UserStatus;
+    lastSessionTime?: Date;
 }
 
 export interface GetLoginRecordsOption {
     userId?: string
     page?: number
     perPage?: number
+}
+
+export type GetUserSessionReportOption = {
+    userId?: string;
+    startTime: Date;
+    endTimme: Date;
 }

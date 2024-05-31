@@ -48,9 +48,9 @@ export async function execute(query: string, params?: any[]): Promise<mysql.RowD
 
     try {
         const [results] = await connection.execute<mysql.RowDataPacket[]>(query, params)
-        return results;
+        return results
     } catch (error) {
-        console.log('SQL execute failed, error: ', error)
+        console.log('sql execute failed, ', error)
         throw error;
     } finally {
         connection.release();

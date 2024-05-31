@@ -5,9 +5,9 @@ function getEmailTokenKey(userId: string): string {
     return 's:ET:' + userId
 }
 
-export async function setEmailToken(userId: string, token: string): Promise<number> {
+export async function setEmailToken(userId: string): Promise<number> {
+    const key = getEmailTokenKey(userId)
     try {
-        const key = getEmailTokenKey(userId)
         const expiresIn = ms(process.env.EMAIL_TOKEN_EXPIRE!)
         const pipeline = redis.multi()
         pipeline.incr(key)
