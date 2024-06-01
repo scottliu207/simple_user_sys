@@ -6,7 +6,6 @@ export interface UserProfile {
     id: string;
     username: string;
     accountType: AccountType;
-    authLevel: AuthLevel;
     email: string;
     passphrase: string;
     status: UserStatus;
@@ -18,7 +17,6 @@ export interface UserProfile {
 export class BaseUser implements UserProfile {
     public id: string;
     public accountType: AccountType;
-    public authLevel: AuthLevel;
     public username: string;
     public email: string;
     public passphrase: string;
@@ -35,7 +33,6 @@ export class BaseUser implements UserProfile {
             this.id = id
         }
         this.username = username
-        this.authLevel = AuthLevel.USER
         this.email = email
         this.passphrase = passphrase
         this.accountType = AccountType.EMAIL

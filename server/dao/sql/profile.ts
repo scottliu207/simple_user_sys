@@ -17,17 +17,15 @@ export async function createUser(input: UserProfile): Promise<void> {
     sql += '   `id`, '
     sql += '   `username`, '
     sql += '   `account_type`, '
-    sql += '   `auth_level`, '
     sql += '   `email`, '
     sql += '   `passphrase`, '
     sql += '   `status` ) '
-    sql += ' VALUES (?, ?, ?, ?, ?, ?, ?) '
+    sql += ' VALUES (?, ?, ?, ?, ?, ?) '
 
     params.push(
         input.id,
         input.username,
         input.accountType,
-        input.authLevel,
         input.email,
         input.passphrase,
         input.status,
@@ -107,7 +105,6 @@ export async function getOneUser(option: GetUserOption): Promise<UserProfile | n
     sql += '   `id`, '
     sql += '   `username`, '
     sql += '   `account_type`, '
-    sql += '   `auth_level`, '
     sql += '   `email`, '
     sql += '   `passphrase`, '
     sql += '   `status`, '
@@ -156,7 +153,6 @@ export async function getOneUser(option: GetUserOption): Promise<UserProfile | n
             email: result.email,
             passphrase: result.passphrase,
             accountType: result.account_type,
-            authLevel: result.auth_level,
             status: result.status,
             lastSessionTime: result.last_session_time,
             createTime: result.create_time,
@@ -183,7 +179,6 @@ export async function getUsers(option: GetUsersOption): Promise<UserProfile[]> {
     sql += '   `id`, '
     sql += '   `username`, '
     sql += '   `account_type`, '
-    sql += '   `auth_level`, '
     sql += '   `email`, '
     sql += '   `passphrase`, '
     sql += '   `status`, '
@@ -212,11 +207,6 @@ export async function getUsers(option: GetUsersOption): Promise<UserProfile[]> {
         params.push(option.status)
     }
 
-    if (option.authLevel) {
-        whereSql.push(' `auth_level` = ? ')
-        params.push(option.authLevel)
-    }
-
     if (whereSql.length != 0) {
         sql = sql.concat(' WHERE ', whereSql.join(' AND '))
     }
@@ -239,7 +229,6 @@ export async function getUsers(option: GetUsersOption): Promise<UserProfile[]> {
                 email: dbData.email,
                 passphrase: dbData.passphrase,
                 accountType: dbData.account_type,
-                authLevel: dbData.auth_level,
                 status: dbData.status,
                 lastSessionTime: dbData.last_session_time,
                 createTime: dbData.create_time,
@@ -278,11 +267,6 @@ export async function getTotalUser(option: GetUsersOption): Promise<number> {
     if (option.status) {
         whereSql.push(' `status` = ? ')
         params.push(option.status)
-    }
-
-    if (option.authLevel) {
-        whereSql.push(' `auth_level` = ? ')
-        params.push(option.authLevel)
     }
 
     if (whereSql.length != 0) {

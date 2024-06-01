@@ -1,13 +1,13 @@
 import { Response, NextFunction } from 'express';
-import { CustomRequest, GetUsersRequest, } from '../model/request';
-import { ErrDataNotFound, ErrInvalidRequest, ErrInvalidUser, ErrNone, ErrNotAuthorized, ErrSomethingWentWrong } from '../err/error';
-import { resFormattor } from '../utils/res_formatter';
-import { AuthLevel, UserStatus } from '../enum/user';
-import { GetUserOption, GetUsersOption } from '../model/sql_option';
-import { getOneUser, getTotalUser, getUsers } from '../dao/sql/profile';
-import { GetReportResult, GetUserResult, GetUsersResult, GetUsersResultRow } from '../model/response';
-import { getTotalUserSessionByDay } from '../dao/sql/user_session_report';
-import { GetDayStartAndEnd } from '../utils/time';
+import { CustomRequest } from '../../model/request';
+import { ErrNone, ErrSomethingWentWrong } from '../../err/error';
+import { resFormattor } from '../../utils/res_formatter';
+import { AuthLevel, } from '../../enum/user';
+import { GetUsersOption } from '../../model/sql_option';
+import { getTotalUser } from '../../dao/sql/profile';
+import { GetReportResult } from '../../model/response';
+import { GetDayStartAndEnd } from '../../utils/time';
+import { getTotalUserActivityByDay } from '../../dao/sql/user_activity_report';
 
 /**
  * Handles user logout.
@@ -19,7 +19,6 @@ export async function getUserReport(req: CustomRequest, res: Response, next: Nex
     try {
 
         const getUsersOpt: GetUsersOption = {
-            authLevel: AuthLevel.USER,
         }
 
         const totalSignUp = await getTotalUser(getUsersOpt)
@@ -27,12 +26,12 @@ export async function getUserReport(req: CustomRequest, res: Response, next: Nex
 
         const currentTime = new Date()
         const currentDay = GetDayStartAndEnd(currentTime)
-        const totalUserToday = await getTotalUserSessionByDay(currentDay.startTime, currentDay.endTime)
+        const totalUserToday = await getTotalUserActivityByDay(currentDay.startTime, currentDay.endTime)
 
         const newStartDate = currentDay.startTime.getUTCDate() - 7
         currentDay.startTime.setUTCDate(newStartDate)
 
-        const totalUserSevenDay = await getTotalUserSessionByDay(currentDay.startTime, currentDay.endTime)
+        const totalUserSevenDay = await getTotalUserActivityByDay(currentDay.startTime, currentDay.endTime)
         const result: GetReportResult = {
             totalSignUp: totalSignUp,
             totalActiveUserToday: totalUserToday,

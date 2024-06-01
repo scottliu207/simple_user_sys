@@ -1,19 +1,16 @@
 import { getUserAcivityKey, redisGetUserActivity } from '../dao/cache/user_activity'
-import { getUserList } from '../controller/get_users'
 import { getUsers, updateUser } from '../dao/sql/profile'
-import { GetUserOption, GetUsersOption, UpdUserOption } from '../model/sql_option'
+import { GetUsersOption, UpdUserOption } from '../model/sql_option'
 import { AuthLevel, UserStatus } from '../enum/user'
 import { GetDayStartAndEnd } from '../utils/time'
-import { createUserSessionReport } from '../dao/sql/user_session_report'
-import { UserSessionReport } from '../model/user_session_report'
 import { redisDel } from '../dao/cache/basic'
+import { createUserActivityReport } from '../dao/sql/user_activity_report'
+import { UserActivityReport } from '../model/user_activity_report'
 
 
 export async function backUpUserActivites() {
-
     let getUsersOpt: GetUsersOption = {
         status: UserStatus.ENABLE,
-        authLevel: AuthLevel.USER,
         page: 1,
         perPage: 1
     }
@@ -33,13 +30,13 @@ export async function backUpUserActivites() {
                 await updateUser(user.id, updOpt)
 
                 const day = GetDayStartAndEnd(new Date(userActivity.timestamp))
-                const reportData: UserSessionReport = {
+                const reportData: UserActivityReport = {
                     userId: user.id,
                     startTime: day.startTime,
                     endTime: day.endTime,
-                    sessionCount: userActivity.count,
+                    userActivityCount: userActivity.count,
                 }
-                await createUserSessionReport(reportData)
+                await createUserActivityReport(reportData)
 
 
                 const key = getUserAcivityKey(user.id)

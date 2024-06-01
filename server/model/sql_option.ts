@@ -14,7 +14,6 @@ export interface GetUsersOption {
     email?: string;
     username?: string;
     status?: UserStatus;
-    authLevel?: AuthLevel;
     page?: number;
     perPage?: number;
 }

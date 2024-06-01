@@ -3,7 +3,7 @@ import { redis } from "../../config/redis"
 
 export async function redisSet(key: string, userId: string, expiresIn: string): Promise<void> {
     try {
-        const _ = await redis.set(key, userId, 'EX', ms(expiresIn))
+        const _ = await redis.set(key, userId, 'EX', ms(expiresIn)/1000)
     } catch (error: unknown) {
         throw error
     }

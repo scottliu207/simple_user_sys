@@ -1,0 +1,2 @@
+REPLACE INTO `user_db`.`admin`(`id`, `email`,`passphrase`,`status`) VALUES 
+ ("ff159eb3-d9a1-4bfd-b341-2d666a779fd9", "johndoe@admin.com", "$2b$10$qbjBN6m11QGwQrUxx9TjtOxVvOTKLbP1pcs8mrO.Z4GYEE8NrSwwm", 1);

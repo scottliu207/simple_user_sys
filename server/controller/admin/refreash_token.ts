@@ -1,13 +1,14 @@
 import { Response, NextFunction } from 'express';
-import { CustomRequest } from '../model/request';
-import { ErrDataNotFound, ErrInvalidRequest, ErrInvalidToken, ErrNone, ErrSomethingWentWrong } from '../err/error';
-import { resFormattor } from '../utils/res_formatter';
-import { GetUserOption } from '../model/sql_option';
-import { UserStatus } from '../enum/user';
-import { generateToken } from '../utils/token';
-import { redisGetUserToken, redisUpdateAccessToken } from '../dao/cache/user_token';
-import { getOneUser } from '../dao/sql/profile';
-import { redisDel, redisGet, redisSet } from '../dao/cache/basic';
+import { CustomRequest } from '../../model/request';
+import { ErrDataNotFound, ErrInvalidRequest, ErrInvalidToken, ErrNone, ErrSomethingWentWrong } from '../../err/error';
+import { resFormattor } from '../../utils/res_formatter';
+import { GetUserOption } from '../../model/sql_option';
+import { UserStatus } from '../../enum/user';
+import { generateToken } from '../../utils/token';
+import { redisGetUserToken, redisUpdateAccessToken } from '../../dao/cache/user_token';
+import { getOneUser } from '../../dao/sql/profile';
+import { redisDel, redisGet, redisSet } from '../../dao/cache/basic';
+import { GetOneAdminOpt, getOneAdmin } from '../../dao/sql/admin';
 
 /**
  * Handles user login.
@@ -29,11 +30,11 @@ export async function refreshToken(req: CustomRequest, res: Response, next: Next
             return
         }
 
-        const getUserOpt: GetUserOption = {
+        const getUserOpt: GetOneAdminOpt = {
             userId: userId,
         }
 
-        const user = await getOneUser(getUserOpt)
+        const user = await getOneAdmin(getUserOpt)
         if (!user) {
             res.json(resFormattor(ErrDataNotFound.newMsg('User not found.')))
             return

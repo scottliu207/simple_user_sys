@@ -4,7 +4,6 @@ export interface SqlUserProfile {
     id: string;
     username: string;
     account_type: AccountType;
-    auth_level: AuthLevel;
     email: string;
     passphrase: string;
     status: UserStatus;

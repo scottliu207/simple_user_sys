@@ -8,7 +8,7 @@ function getEmailTokenKey(userId: string): string {
 export async function setEmailToken(userId: string): Promise<number> {
     const key = getEmailTokenKey(userId)
     try {
-        const expiresIn = ms(process.env.EMAIL_TOKEN_EXPIRE!)
+        const expiresIn = ms(process.env.EMAIL_TOKEN_EXPIRE!)/1000
         const pipeline = redis.multi()
         pipeline.incr(key)
         pipeline.expire(key, expiresIn)

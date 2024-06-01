@@ -2,10 +2,9 @@ import { NextFunction, Response } from "express";
 import { resFormattor } from "../utils/res_formatter";
 import { ErrDataNotFound, ErrInvalidUser, ErrNotAuthorized, ErrSomethingWentWrong } from "../err/error";
 import { CustomRequest } from "../model/request";
-import { GetUserOption } from "../model/sql_option";
-import { getOneUser } from '../dao/sql/profile'
-import { AuthLevel, UserStatus } from "../enum/user";
+import { UserStatus } from "../enum/user";
 import { redisGet } from "../dao/cache/basic";
+import { GetOneAdminOpt, getOneAdmin } from "../dao/sql/admin";
 
 /**
  * User authentication
@@ -38,6 +37,7 @@ export async function authenticator(req: CustomRequest, res: Response, next: Nex
     next()
 }
 
+
 /**
  * User authentication
  * @param req 
@@ -51,10 +51,10 @@ export async function isAdmin(req: CustomRequest, res: Response, next: NextFunct
             return
         }
 
-        const getUserOpt: GetUserOption = {
+        const getUserOpt: GetOneAdminOpt = {
             userId: req.userId,
         }
-        const user = await getOneUser(getUserOpt)
+        const user = await getOneAdmin(getUserOpt)
         if (!user) {
             res.json(resFormattor(ErrDataNotFound.newMsg('User not found.')))
             return
@@ -65,10 +65,6 @@ export async function isAdmin(req: CustomRequest, res: Response, next: NextFunct
             return
         }
 
-        if (user.authLevel != AuthLevel.ADMIN) {
-            res.json(resFormattor(ErrNotAuthorized.newMsg('Invalid user auth level.')))
-            return
-        }
     } catch (error: unknown) {
         console.log('Unkonwn error occured: ' + error)
         res.json(resFormattor(ErrSomethingWentWrong))

@@ -16,15 +16,18 @@ type UserToken = {
     refreshToken: string;
 }
 
-export async function redisSetUserToken(userId: string, accessToken: Token, refreshToken: Token) {
+export async function redisSetUserToken(userId: string, curUserToken: UserToken, newAccessToken: Token, newRefreshToken: Token) {
     const key = getUserTokenKey(userId)
     try {
         const pipeline = redis.multi()
-        pipeline.hset(key, 'accessToken', accessToken.token)
-        pipeline.hset(key, 'refreshToken', refreshToken.token)
-        pipeline.expire(key, ms(refreshToken.expriresIn))
-        pipeline.set(accessToken.token, userId, 'EX', ms(accessToken.expriresIn))
-        pipeline.set(refreshToken.token, userId, 'EX', ms(refreshToken.expriresIn))
+        pipeline.hset(key, 'accessToken', newAccessToken.token)
+        pipeline.hset(key, 'refreshToken', newRefreshToken.token)
+        pipeline.expire(key, ms(newRefreshToken.expriresIn)/1000)
+        pipeline.del(curUserToken.accessToken)
+        pipeline.del(curUserToken.refreshToken)
+        pipeline.set(newAccessToken.token, userId, 'EX', ms(newAccessToken.expriresIn) / 1000)
+        pipeline.set(newRefreshToken.token, userId, 'EX', ms(newRefreshToken.expriresIn) / 1000)
+
         await pipeline.exec()
         return
     } catch (error: unknown) {
