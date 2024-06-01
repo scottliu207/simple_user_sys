@@ -11,7 +11,7 @@ CREATE TABLE `user_db`.`profile` (
   `email` varchar(255) NOT NULL COMMENT 'email',
   `passphrase` varchar(255) NOT NULL COMMENT 'password or token',
   `status` tinyint unsigned NOT NULL COMMENT 'user status 1: Enable 2: Disable 3: Unverified',
-  `last_session_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'user last session at',
+  `last_session_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'user last session at',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create time',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'update time',
   PRIMARY KEY (`id`),

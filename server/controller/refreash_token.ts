@@ -54,7 +54,7 @@ export async function refreshToken(req: CustomRequest, res: Response, next: Next
         const newAccessToken = generateToken()
         await redisDel(userToken.accessToken)
         await redisUpdateAccessToken(user.id, newAccessToken)
-        await redisSet(newAccessToken, user.id, process.env.JWT_ACCESS_TOKEN_EXPIRE!)
+        await redisSet(newAccessToken, user.id, process.env.ACCESS_TOKEN_EXPIRE!)
 
         const result = {
             'accessToken': newAccessToken,

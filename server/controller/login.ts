@@ -51,11 +51,11 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
             return
         }
 
-        const accessToken: Token = { token: generateToken(), expriresIn: process.env.JWT_ACCESS_TOKEN_EXPIRE! }
+        const accessToken: Token = { token: generateToken(), expriresIn: process.env.ACCESS_TOKEN_EXPIRE! }
         let userToken = await redisGetUserToken(user.id)
 
         if (!userToken.refreshToken) {
-            const refreshToken: Token = { token: generateToken(), expriresIn: process.env.JWT_REFRESH_TOKEN_EXPIRE! }
+            const refreshToken: Token = { token: generateToken(), expriresIn: process.env.REFRESH_TOKEN_EXPIRE! }
             await redisSetUserToken(user.id, accessToken, refreshToken)
             await redisSet(accessToken.token, user.id, accessToken.expriresIn)
             await redisSet(refreshToken.token, user.id, refreshToken.expriresIn)

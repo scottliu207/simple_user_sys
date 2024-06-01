@@ -43,20 +43,19 @@ export async function getUserList(req: CustomRequest, res: Response, next: NextF
             data: [],
             total: total,
         }
-
-        users.forEach((user) => {
+        for (const user of users) {
             const row: GetUsersResultRow = {
                 userId: user.id,
                 email: user.email,
                 username: user.username,
                 accountType: user.accountType,
                 status: user.status,
+                lastSessionTime: user.lastSessionTime,
                 createTime: user.createTime ?? new Date(0),
                 updateTime: user.updateTime ?? new Date(0),
             }
             result.data.push(row)
-        })
-
+        }
 
         res.json(resFormattor(ErrNone, result))
 

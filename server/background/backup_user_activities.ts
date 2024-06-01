@@ -46,11 +46,11 @@ export async function backUpUserActivites() {
                 await redisDel(key)
             }
 
-            if (users.length < getUsersOpt.perPage) {
+            if (users.length < getUsersOpt.perPage!) {
                 break
             }
 
-            getUsersOpt.page++
+            getUsersOpt.page!++
         }
     } catch (error: unknown) {
         console.log(`Unknown error occured while backing up user session, ${error}`)

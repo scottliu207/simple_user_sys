@@ -27,6 +27,7 @@ export interface GetUsersResultRow extends BaseResult {
     email: string;
     status: UserStatus;
     accountType: AccountType;
+    lastSessionTime?: Date;
     createTime: Date;
     updateTime: Date;
 }
@@ -34,4 +35,10 @@ export interface GetUsersResultRow extends BaseResult {
 export interface GetUsersResult extends BaseResult {
     data: GetUsersResultRow[];
     total: number;
+}
+
+export interface GetReportResult extends BaseResult {
+    totalSignUp: number;
+    totalActiveUserToday: number;
+    avgActiveUserLastSevenDay: number;
 }

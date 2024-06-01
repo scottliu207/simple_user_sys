@@ -15,8 +15,8 @@ export interface GetUsersOption {
     username?: string;
     status?: UserStatus;
     authLevel?: AuthLevel;
-    page: number;
-    perPage: number;
+    page?: number;
+    perPage?: number;
 }
 
 export interface UpdUserOption {
@@ -35,6 +35,11 @@ export interface GetLoginRecordsOption {
 
 export type GetUserSessionReportOption = {
     userId?: string;
+    startTime: Date;
+    endTime: Date;
+}
+
+export type GetUserSessionReportByDay = {
     startTime: Date;
     endTimme: Date;
 }

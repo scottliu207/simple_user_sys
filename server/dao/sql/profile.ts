@@ -111,7 +111,7 @@ export async function getOneUser(option: GetUserOption): Promise<UserProfile | n
     sql += '   `email`, '
     sql += '   `passphrase`, '
     sql += '   `status`, '
-    sql += '   IF(`last_session_time`="0000-00-00 00:00:00",NULL,last_session_time), '
+    sql += '   IF(`last_session_time`="0000-00-00 00:00:00",NULL,last_session_time) as `last_session_time`, '
     sql += '   `create_time`, '
     sql += '   `update_time` '
     sql += ' FROM `profile` '
@@ -187,7 +187,7 @@ export async function getUsers(option: GetUsersOption): Promise<UserProfile[]> {
     sql += '   `email`, '
     sql += '   `passphrase`, '
     sql += '   `status`, '
-    sql += '   IF(`last_session_time`="0000-00-00 00:00:00",NULL,last_session_time), '
+    sql += '   IF(`last_session_time`="0000-00-00 00:00:00",NULL,`last_session_time`) as `last_session_time`, '
     sql += '   `create_time`, '
     sql += '   `update_time` '
     sql += ' FROM `profile` '
@@ -242,7 +242,7 @@ export async function getUsers(option: GetUsersOption): Promise<UserProfile[]> {
                 authLevel: dbData.auth_level,
                 status: dbData.status,
                 lastSessionTime: dbData.last_session_time,
-                createTime: dbData.last_session_time,
+                createTime: dbData.create_time,
                 updateTime: dbData.update_time,
             }
             users.push(user)

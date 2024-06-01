@@ -4,6 +4,7 @@ import { execute } from '../../config/mysql'
 import { GetLoginRecordsOption, GetUserSessionReportOption, GetUsersOption } from '../../model/sql_option'
 import { paging } from '../../utils/paging'
 import { UserSessionReport } from '../../model/user_session_report'
+import { TotalUserSessionByDay } from '../../model/sql/user_session_report'
 
 
 /** 
@@ -63,7 +64,7 @@ export async function getUserSessionReport(option: GetUserSessionReportOption): 
 
     if (option.startTime) {
         whereSql.push(' `end_time` = ? ')
-        params.push(option.endTimme)
+        params.push(option.endTime)
     }
 
     if (whereSql.length != 0) {
@@ -121,46 +122,33 @@ export async function getTotalRecord(option: GetUsersOption): Promise<number> {
     }
 }
 
-
 /** 
  * get user's login records
  * @param {string } option - option for get users 
  * @return {Promise<UserProfile|null>}
 */
-export async function getLoginRecordsCountByUser(option: GetLoginRecordsOption): Promise<LoginRecord[]> {
+export async function getTotalUserSessionByDay(startTime: Date, endTime: Date): Promise<number> {
     let sql: string = ''
     let params: any[] = []
-    let whereSql: string[] = []
-    sql += ' SELECT COUNT(*) as `total` FROM `user_session_report` '
-
-    if (option.userId) {
-        whereSql.push(' `user_id` = ? ')
-        params.push(option.userId)
-    }
-
-    if (whereSql.length != 0) {
-        sql = sql.concat(' WHERE ', whereSql.join(' AND '))
-    }
-
-    sql += 'GROUP BY `user_id`'
+    sql += ' SELECT '
+    sql += '   COUNT(DISTINCT `user_id`) AS `total_user` '
+    sql += ' FROM `user_session_report` '
+    sql += ' WHERE '
+    sql += '   `start_time` >= ? AND `end_time` <= ? '
+    params.push(startTime, endTime)
+    sql += 'GROUP BY `start_time`, `end_time`'
 
     try {
-        let records: LoginRecord[] = []
+        let total: number = 0
         let rows = await execute(sql, params)
         for (const row of rows) {
-            const recordDb = row as SqlLoginRecord
-            const record: LoginRecord = {
-                id: recordDb.id,
-                userId: recordDb.user_id,
-                createTime: recordDb.create_time,
-                updateTime: recordDb.update_time,
-            }
-            records.push(record)
-
+            const data = row as { total_user: number }
+            total += data.total_user
         }
-        return records
+
+        return total
 
     } catch (error: unknown) {
-        throw new Error(`sql exec failed-get user session report count by user, ${error}`)
+        throw new Error(`sql exec failed-get total user session by day, ${error}`)
     }
 }
