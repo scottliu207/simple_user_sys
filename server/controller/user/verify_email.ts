@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
-import { VerifyTokenRequest } from '../model/request';
-import { ErrDataNotFound, ErrInvalidRequest, ErrNone, ErrSomethingWentWrong } from '../err/error';
-import { resFormattor } from '../utils/res_formatter';
-import { getOneUser, updateUser } from '../dao/sql/profile'
-import { GetUserOption, UpdUserOption } from '../model/sql_option';
-import { UserStatus } from '../enum/user'
-import { verifyJwtToken } from '../utils/token';
-import { delEmailToken, getEmailToken } from '../dao/cache/email_token';
+import { VerifyTokenRequest } from '../../model/request';
+import { ErrDataNotFound, ErrInvalidRequest, ErrNone, ErrSomethingWentWrong } from '../../err/error';
+import { resFormattor } from '../../utils/res_formatter';
+import { getOneUser, updateUser } from '../../dao/sql/profile'
+import { GetUserOption, UpdUserOption } from '../../model/sql_option';
+import { UserStatus } from '../../enum/user'
+import { verifyJwtToken } from '../../utils/token';
+import { delEmailToken, getEmailToken } from '../../dao/cache/email_token';
 
 /**
  * Handles user login.

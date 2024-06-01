@@ -1,17 +1,17 @@
 import { Request, Response, NextFunction } from 'express';
-import { getOneUser } from '../dao/sql/profile';
-import { BaseUser } from '../model/user_profile';
-import { SignUpResult } from '../model/response';
-import { SignUpRequest } from '../model/request';
-import { hashPassword } from '../utils/hash';
-import { ErrDataAlreadyExists, ErrInvalidRequest, ErrSomethingWentWrong, ErrNone, ErrPasswordNotMatch, ErrInvalidPassword } from '../err/error';
-import { resFormattor } from '../utils/res_formatter';
-import { GetUserOption } from '../model/sql_option';
-import { validatePassword } from '../utils/password_validator';
-import { sendEmail } from '../utils/email';
-import { generateJwtToken } from '../utils/token';
-import { genUuid } from '../utils/gen_uuid';
-import { setEmailToken } from '../dao/cache/email_token';
+import { getOneUser } from '../../dao/sql/profile';
+import { BaseUser } from '../../model/user_profile';
+import { SignUpResult } from '../../model/response';
+import { SignUpRequest } from '../../model/request';
+import { hashPassword } from '../../utils/hash';
+import { ErrDataAlreadyExists, ErrInvalidRequest, ErrSomethingWentWrong, ErrNone, ErrPasswordNotMatch, ErrInvalidPassword } from '../../err/error';
+import { resFormattor } from '../../utils/res_formatter';
+import { GetUserOption } from '../../model/sql_option';
+import { validatePassword } from '../../utils/password_validator';
+import { sendEmail } from '../../utils/email';
+import { generateJwtToken } from '../../utils/token';
+import { genUuid } from '../../utils/gen_uuid';
+import { setEmailToken } from '../../dao/cache/email_token';
 
 /**
  * Handles user sign-up.

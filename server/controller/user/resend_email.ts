@@ -1,13 +1,13 @@
 import { Response, NextFunction } from 'express';
-import { CustomRequest, ResendEmailRequest } from '../model/request';
-import { ErrSomethingWentWrong, ErrNone, ErrInvalidRequest, ErrDataNotFound, ErrMaxVerifyTryExceed } from '../err/error';
-import { resFormattor } from '../utils/res_formatter';
-import { sendEmail } from '../utils/email';
-import { generateJwtToken, verifyJwtToken } from '../utils/token';
-import { delEmailToken, getEmailToken, setEmailToken } from '../dao/cache/email_token';
-import { GetUserOption } from '../model/sql_option';
-import { getOneUser } from '../dao/sql/profile';
-import { UserStatus } from '../enum/user';
+import { CustomRequest, ResendEmailRequest } from '../../model/request';
+import { ErrSomethingWentWrong, ErrNone, ErrInvalidRequest, ErrDataNotFound, ErrMaxVerifyTryExceed } from '../../err/error';
+import { resFormattor } from '../../utils/res_formatter';
+import { sendEmail } from '../../utils/email';
+import { generateJwtToken, verifyJwtToken } from '../../utils/token';
+import { delEmailToken, getEmailToken, setEmailToken } from '../../dao/cache/email_token';
+import { GetUserOption } from '../../model/sql_option';
+import { getOneUser } from '../../dao/sql/profile';
+import { UserStatus } from '../../enum/user';
 
 /**
  * Handles user sign-up.
