@@ -1,4 +1,4 @@
-import { AccountType, AuthLevel, UserStatus } from '../enum/user'
+import { AccountType, UserStatus } from '../enum/user'
 import { createUser } from "../dao/sql/profile";
 import { genUuid } from '../utils/gen_uuid';
 

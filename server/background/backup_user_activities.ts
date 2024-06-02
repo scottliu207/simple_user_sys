@@ -1,7 +1,7 @@
 import { getUserAcivityKey, redisGetUserActivity } from '../dao/cache/user_activity'
 import { getUsers, updateUser } from '../dao/sql/profile'
 import { GetUsersOption, UpdUserOption } from '../model/sql_option'
-import { AuthLevel, UserStatus } from '../enum/user'
+import { UserStatus } from '../enum/user'
 import { GetDayStartAndEnd } from '../utils/time'
 import { redisDel } from '../dao/cache/basic'
 import { createUserActivityReport } from '../dao/sql/user_activity_report'

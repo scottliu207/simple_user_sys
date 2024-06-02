@@ -1,4 +1,4 @@
-import { AccountType, AuthLevel, UserStatus } from "../enum/user";
+import { AccountType, UserStatus } from "../enum/user";
 
 export interface SqlUserProfile {
     id: string;

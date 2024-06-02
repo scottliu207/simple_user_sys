@@ -1,4 +1,4 @@
-import { AuthLevel, UserStatus } from "../enum/user";
+import { UserStatus } from "../enum/user";
 
 export interface GetUserOption {
     userId?: string;
