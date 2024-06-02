@@ -1,16 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
-import { LoginRequest } from '../../model/request';
-import { ErrDataNotFound, ErrInvalidRequest, ErrNone, ErrSomethingWentWrong } from '../../err/error';
-import { resFormattor } from '../../utils/res_formatter';
-import { getOneUser } from '../../dao/sql/profile'
-import { verifyPassword } from '../../utils/hash';
-import { GetUserOption } from '../../model/sql_option';
-import { UserStatus } from '../../enum/user';
-import { generateToken } from '../../utils/token';
-import { Token, redisGetUserToken, redisSetUserToken, redisUpdateAccessToken } from '../../dao/cache/user_token';
-import { createLoginRecord } from '../../dao/sql/login_record';
-import { redisDel, redisSet } from '../../dao/cache/basic';
-import { GetOneAdminOpt, getOneAdmin } from '../../dao/sql/admin';
+import { LoginRequest } from '../model/request';
+import { ErrDataNotFound, ErrInvalidRequest, ErrNone, ErrSomethingWentWrong } from '../err/error';
+import { resFormattor } from '../utils/res_formatter';
+import { getOneUser } from '../dao/sql/profile'
+import { verifyPassword } from '../utils/hash';
+import { GetUserOption } from '../model/sql_option';
+import { UserStatus } from '../enum/user';
+import { generateToken } from '../utils/token';
+import { Token, redisGetUserToken, redisSetUserToken, redisUpdateAccessToken } from '../dao/cache/user_token';
+import { createLoginRecord } from '../dao/sql/login_record';
+import { redisDel, redisSet } from '../dao/cache/basic';
 
 /**
  * Handles user login.
@@ -31,11 +30,11 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
             return
         }
 
-        const getAdminOpt: GetOneAdminOpt = {
+        const getUserOpt: GetUserOption = {
             email: email,
         }
 
-        const user = await getOneAdmin(getAdminOpt)
+        const user = await getOneUser(getUserOpt)
         if (!user) {
             res.json(resFormattor(ErrDataNotFound.newMsg('Email or password is incorrect.')))
             return
@@ -61,7 +60,6 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
             accessToken: accessToken.token,
             refreshToken: refreshToken.token,
         }
-
 
         await createLoginRecord(user.id)
 

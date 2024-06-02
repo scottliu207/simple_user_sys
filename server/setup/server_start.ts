@@ -4,7 +4,6 @@ import { responseHandler } from '../middleware/response_handler';
 import { pingRedis, redis } from '../config/redis';
 import { pingMySql, pool as mysqlPool } from '../config/mysql';
 import express from 'express';
-import { adminRouteV1 } from '../routes/admin';
 import cookieParser from 'cookie-parser';
 import cors from 'cors'
 import { extractToken } from '../middleware/extract_token';
@@ -43,7 +42,6 @@ export async function start() {
 
     app.use(extractToken)
     app.use('/api/user/v1', userRouteV1)
-    app.use('/api/admin/v1', adminRouteV1)
 
     app.listen(port, () => {
         console.log(`server is listening on ${port}`);

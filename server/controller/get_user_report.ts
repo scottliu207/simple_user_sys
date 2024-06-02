@@ -1,13 +1,13 @@
 import { Response, NextFunction } from 'express';
-import { CustomRequest } from '../../model/request';
-import { ErrNone, ErrSomethingWentWrong } from '../../err/error';
-import { resFormattor } from '../../utils/res_formatter';
-import { AuthLevel, } from '../../enum/user';
-import { GetUsersOption } from '../../model/sql_option';
-import { getTotalUser } from '../../dao/sql/profile';
-import { GetReportResult } from '../../model/response';
-import { GetDayStartAndEnd } from '../../utils/time';
-import { getTotalUserActivityByDay } from '../../dao/sql/user_activity_report';
+import { CustomRequest } from '../model/request';
+import { ErrNone, ErrSomethingWentWrong } from '../err/error';
+import { resFormattor } from '../utils/res_formatter';
+import { AuthLevel, } from '../enum/user';
+import { GetUsersOption } from '../model/sql_option';
+import { getTotalUser } from '../dao/sql/profile';
+import { GetReportResult } from '../model/response';
+import { GetDayStartAndEnd } from '../utils/time';
+import { getTotalUserActivityByDay } from '../dao/sql/user_activity_report';
 
 /**
  * Handles user logout.

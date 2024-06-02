@@ -1,13 +1,13 @@
 import { Response, NextFunction } from 'express';
-import { CustomRequest } from '../../model/request';
-import { ErrDataNotFound, ErrInvalidRequest, ErrInvalidToken, ErrNone, ErrSomethingWentWrong } from '../../err/error';
-import { resFormattor } from '../../utils/res_formatter';
-import { GetUserOption } from '../../model/sql_option';
-import { UserStatus } from '../../enum/user';
-import { generateToken } from '../../utils/token';
-import { redisGetUserToken, redisUpdateAccessToken } from '../../dao/cache/user_token';
-import { getOneUser } from '../../dao/sql/profile';
-import { redisDel, redisGet, redisSet } from '../../dao/cache/basic';
+import { CustomRequest } from '../model/request';
+import { ErrDataNotFound, ErrInvalidRequest, ErrInvalidToken, ErrNone, ErrSomethingWentWrong } from '../err/error';
+import { resFormattor } from '../utils/res_formatter';
+import { GetUserOption } from '../model/sql_option';
+import { UserStatus } from '../enum/user';
+import { generateToken } from '../utils/token';
+import { redisGetUserToken, redisUpdateAccessToken } from '../dao/cache/user_token';
+import { getOneUser } from '../dao/sql/profile';
+import { redisDel, redisGet, redisSet } from '../dao/cache/basic';
 
 /**
  * Handles user login.

@@ -1,12 +1,12 @@
 import { Response, NextFunction } from 'express';
-import { CustomRequest, ResetPasswordReq } from '../../model/request';
-import { ErrDataNotFound, ErrInvalidPassword, ErrInvalidRequest, ErrInvalidUser, ErrNone, ErrNotAuthorized, ErrPasswordNotMatch, ErrSomethingWentWrong } from '../../err/error';
-import { resFormattor } from '../../utils/res_formatter';
-import { getOneUser, updateUser } from '../../dao/sql/profile'
-import { hashPassword, verifyPassword } from '../../utils/hash';
-import { GetUserOption, UpdUserOption } from '../../model/sql_option';
-import { validatePassword } from '../../utils/password_validator';
-import { UserStatus } from '../../enum/user';
+import { CustomRequest, ResetPasswordReq } from '../model/request';
+import { ErrDataNotFound, ErrInvalidPassword, ErrInvalidRequest, ErrInvalidUser, ErrNone, ErrNotAuthorized, ErrPasswordNotMatch, ErrSomethingWentWrong } from '../err/error';
+import { resFormattor } from '../utils/res_formatter';
+import { getOneUser, updateUser } from '../dao/sql/profile'
+import { hashPassword, verifyPassword } from '../utils/hash';
+import { GetUserOption, UpdUserOption } from '../model/sql_option';
+import { validatePassword } from '../utils/password_validator';
+import { UserStatus } from '../enum/user';
 
 /**
  * Handles user logout.

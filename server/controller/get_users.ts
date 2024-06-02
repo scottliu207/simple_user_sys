@@ -1,11 +1,11 @@
 import { Response, NextFunction } from 'express';
-import { CustomRequest, GetUsersRequest, } from '../../model/request';
-import { ErrDataNotFound, ErrInvalidRequest, ErrInvalidUser, ErrNone, ErrNotAuthorized, ErrSomethingWentWrong } from '../../err/error';
-import { resFormattor } from '../../utils/res_formatter';
-import { AuthLevel, UserStatus } from '../../enum/user';
-import { GetUserOption, GetUsersOption } from '../../model/sql_option';
-import { getOneUser, getTotalUser, getUsers } from '../../dao/sql/profile';
-import { GetUserResult, GetUsersResult, GetUsersResultRow } from '../../model/response';
+import { CustomRequest, GetUsersRequest, } from '../model/request';
+import { ErrDataNotFound, ErrInvalidRequest, ErrInvalidUser, ErrNone, ErrNotAuthorized, ErrSomethingWentWrong } from '../err/error';
+import { resFormattor } from '../utils/res_formatter';
+import { AuthLevel, UserStatus } from '../enum/user';
+import { GetUserOption, GetUsersOption } from '../model/sql_option';
+import { getOneUser, getTotalUser, getUsers } from '../dao/sql/profile';
+import { GetUserResult, GetUsersResult, GetUsersResultRow } from '../model/response';
 
 /**
  * Handles user logout.

@@ -40,16 +40,3 @@ CREATE TABLE `user_db`.`user_activity_report` (
   KEY `ID_User_ID`(`user_id`),
   KEY `ID_TimePeriod`(`start_time`, `end_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='user activity report';
-
--- admin 
-CREATE TABLE `user_db`.`admin` (
-  `id` char(50) NOT NULL COMMENT 'user_id',
-  `email` varchar(255) NOT NULL COMMENT 'email',
-  `passphrase` varchar(255) NOT NULL COMMENT 'password or token',
-  `status` tinyint unsigned NOT NULL COMMENT 'user status 1: Enable 2: Disable',
-  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create time',
-  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'update time',
-  PRIMARY KEY (`id`),
-  KEY `ID_User_ID`(`id`),
-  KEY `ID_User_Email`(`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='admin';

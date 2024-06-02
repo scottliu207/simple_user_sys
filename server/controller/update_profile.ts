@@ -1,10 +1,10 @@
 import { Response, NextFunction } from 'express';
-import { CustomRequest, UpdateProfileReq } from '../../model/request';
-import { ErrDataNotFound, ErrInvalidRequest, ErrInvalidUser, ErrNone, ErrNotAuthorized, ErrSomethingWentWrong } from '../../err/error';
-import { resFormattor } from '../../utils/res_formatter';
-import { getOneUser, updateUser } from '../../dao/sql/profile'
-import { UserStatus } from '../../enum/user';
-import { GetUserOption, UpdUserOption } from '../../model/sql_option';
+import { CustomRequest, UpdateProfileReq } from '../model/request';
+import { ErrDataNotFound, ErrInvalidRequest, ErrInvalidUser, ErrNone, ErrNotAuthorized, ErrSomethingWentWrong } from '../err/error';
+import { resFormattor } from '../utils/res_formatter';
+import { getOneUser, updateUser } from '../dao/sql/profile'
+import { UserStatus } from '../enum/user';
+import { GetUserOption, UpdUserOption } from '../model/sql_option';
 
 /**
  * Handles user logout.
