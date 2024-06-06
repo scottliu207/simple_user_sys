@@ -28,6 +28,7 @@ export enum ErrorCode {
     INVALID_USER = 1007,
     VERIFY_MAX_TRY_EXCEED = 1008,
     INVALID_TOKEN = 1009,
+    INVALID_ACCOUNT_TYPE = 1010,
 
     // Server Error
     SOMETHING_WENT_WRONG = 3000,
@@ -43,4 +44,5 @@ export const ErrDataAlreadyExists = new CustomError(400, ErrorCode.DATA_ALREADY_
 export const ErrDataNotFound = new CustomError(400, ErrorCode.DATA_NOT_FOUND, 'Data not found.')
 export const ErrNotAuthorized = new CustomError(401, ErrorCode.NOT_AUTHORIZED, 'Not authorized.')
 export const ErrMaxVerifyTryExceed = new CustomError(401, ErrorCode.VERIFY_MAX_TRY_EXCEED, 'Exceed max try count.')
+export const ErrInvalidAccountType = new CustomError(400, ErrorCode.INVALID_ACCOUNT_TYPE, 'Invalid account type.')
 export const ErrSomethingWentWrong = new CustomError(500, ErrorCode.SOMETHING_WENT_WRONG, 'Something went wrong.')

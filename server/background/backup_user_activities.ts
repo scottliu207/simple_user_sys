@@ -9,6 +9,7 @@ import { UserActivityReport } from '../model/user_activity_report'
 
 
 export async function backUpUserActivites() {
+    console.log("start backing up user's activities")
     let getUsersOpt: GetUsersOption = {
         status: UserStatus.ENABLE,
         page: 1,
@@ -53,4 +54,6 @@ export async function backUpUserActivites() {
         console.log(`Unknown error occured while backing up user session, ${error}`)
         return
     }
+
+    console.log("back up user's activities has finished.")
 }

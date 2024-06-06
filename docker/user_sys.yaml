@@ -7,24 +7,17 @@ networks:
 services:
   users-app:
     container_name: simple-user-app
-    image: users-app
+    image: scott207/simple-user-app:latest
     ports:
       - "3000:3000"
     depends_on:
       - users-mysql
       - users-redis
     environment:
-      - DOMAIN=http://localhost:3000
       - MYSQL_HOST=users-mysql
-      - MYSQL_ACCOUNT=root
-      - MYSQL_PASSWORD=root
-      - MYSQL_PORT=3306
-      - MYSQL_USERDB=user_db
-      - MYSQL_TIMEZONE=+00:00
       - REDIS_HOST=users-redis
-      - REDIS_PORT=6379
-      - REDIS_DB=0
-
+    env_file:
+      - ../.env
     networks:
       - users-network
 

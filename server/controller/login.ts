@@ -1,15 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import { LoginRequest } from '../model/request';
-import { ErrDataNotFound, ErrInvalidRequest, ErrNone, ErrSomethingWentWrong } from '../err/error';
+import { ErrDataNotFound, ErrInvalidAccountType, ErrInvalidRequest, ErrNone, ErrSomethingWentWrong } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
 import { getOneUser } from '../dao/sql/profile'
 import { verifyPassword } from '../utils/hash';
 import { GetUserOption } from '../model/sql_option';
-import { UserStatus } from '../enum/user';
+import { AccountType, UserStatus } from '../enum/user';
 import { generateToken } from '../utils/token';
-import { Token, redisGetUserToken, redisSetUserToken, redisUpdateAccessToken } from '../dao/cache/user_token';
+import { Token, redisGetUserToken, redisSetUserToken } from '../dao/cache/user_token';
 import { createLoginRecord } from '../dao/sql/login_record';
-import { redisDel, redisSet } from '../dao/cache/basic';
 
 /**
  * Handles user login.
@@ -40,12 +39,12 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
             return
         }
 
-        if (user.status != UserStatus.ENABLE) {
-            res.json(resFormattor(ErrInvalidRequest.newMsg('Inavlid User.')))
+        if (user.accountType != AccountType.EMAIL) {
+            res.json(resFormattor(ErrInvalidAccountType))
             return
         }
 
-        const match = await verifyPassword(password, user.passphrase)
+        const match = await verifyPassword(password, user.passphrase!)
         if (!match) {
             res.json(resFormattor(ErrDataNotFound.newMsg('Email or password is incorrect.')))
             return

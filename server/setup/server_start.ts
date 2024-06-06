@@ -5,7 +5,6 @@ import { pingRedis, redis } from '../config/redis';
 import { pingMySql, pool as mysqlPool } from '../config/mysql';
 import express from 'express';
 import cookieParser from 'cookie-parser';
-import cors from 'cors'
 import { extractToken } from '../middleware/extract_token';
 import schedule from 'node-schedule'
 import { backUpUserActivites } from '../background/backup_user_activities';
@@ -29,15 +28,8 @@ export async function start() {
         process.exit(1)
     }
 
-    const corsOpt = {
-        origin: process.env.DOMAIN,
-        allowedHeaders: ['Authorization'],
-    };
-
-
     app.use(express.json())
     app.use(cookieParser())
-    app.use(cors(corsOpt))
     app.use(responseHandler)
 
     app.use(extractToken)

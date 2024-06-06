@@ -82,3 +82,8 @@ Create a simple app where users can sign up and sign in from a landing page into
     1. Total number of users who have signed up.
     2. Total number of users with active sessions today.
     3. Average number of active session users in the last 7 days rolling.
+
+
+
+    // todo: recovery mechanism
+// todo: log middleware

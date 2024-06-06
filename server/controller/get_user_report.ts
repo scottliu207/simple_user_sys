@@ -34,7 +34,7 @@ export async function getUserReport(req: CustomRequest, res: Response, next: Nex
         const result: GetReportResult = {
             totalSignUp: totalSignUp,
             totalActiveUserToday: totalUserToday,
-            avgActiveUserLastSevenDay: totalUserSevenDay
+            avgActiveUserLastSevenDay: totalUserSevenDay/7
         }
 
         res.json(resFormattor(ErrNone, result))

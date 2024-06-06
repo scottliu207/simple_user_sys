@@ -12,11 +12,13 @@ import { refreshToken } from '../controller/refreash_token'
 import { userSessionTracker } from '../middleware/user_session_tracker'
 import { getUserList } from '../controller/get_users'
 import { getUserReport } from '../controller/get_user_report'
+import { googleSignIn } from '../controller/google_sign_in'
 
 const userRouteV1: Router = express.Router()
 
 userRouteV1.post("/signup", signUp)
 userRouteV1.post("/login", login)
+userRouteV1.get("/google/signin", googleSignIn)
 userRouteV1.post("/logout", authenticator, logout)
 userRouteV1.get("/profile", authenticator, userSessionTracker, getProfile)
 userRouteV1.post("/profile/update", authenticator, userSessionTracker, updateProfile)

@@ -14,12 +14,11 @@ BlinkRED='\033[0;5;31m'
 YELLOW='\033[0;33m'
 UWhite='\033[4;37m'
 NC='\033[0m' # No Color
-
+APP_NAME='simple-user-app'
 
 # running up local env
-function Up() {
-	# ComposeName="-f db.yaml "
-	ComposeName="-f user_sys.yaml -f db.yaml "
+function Up() { 
+	ComposeName="-f db.yaml -f user_sys.yaml"
 	cd $ExecDir
 	echo -e "${YELLOW} Running up container:${NC} $ComposeName"
 	docker-compose $ComposeName down
@@ -54,7 +53,24 @@ function Down() {
 }
 
 function Build() {
-	docker build -t simple-user-app .
+	docker build -t $APP_NAME .
+}
+
+# heroku login
+function HerokuLogin() {
+	heroku login && heroku container:login
+}
+
+# build image and deploy to heroku
+function HerokuDeploy() {
+	docker build -t $APP_NAME . &&
+	heroku container:push web -a $APP_NAME &&
+	heroku container:release web -a $APP_NAME
+}
+
+# build image and deploy to heroku
+function HerokuShowLogs() {
+	heroku logs --tail -a $APP_NAME
 }
 
 # Command line flag
@@ -67,6 +83,9 @@ case "$1" in
 	echo "   -u, --up      running up all containers"
 	echo "   -d, --down    running down all containers"
 	echo "   -b, --build   building up the user-app image"
+	echo "   -l, --login   heroku login"
+	echo "   -r, --release  build image and deploy on heroku"
+	echo "   -t, --tail  shows app logs"
 	;;
   -u | --up)
     Up
@@ -78,6 +97,15 @@ case "$1" in
 
   -b | --build)
 	Build
+	;;
+  -l | --login)
+	HerokuLogin
+	;;
+  -r | --release)
+	HerokuDeploy
+	;;
+  -t | --tail)
+	HerokuShowLogs
 	;;
 *)
   echo "use './run.sh -h' for more info"

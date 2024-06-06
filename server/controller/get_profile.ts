@@ -1,11 +1,12 @@
 import { Response, NextFunction } from 'express';
 import { CustomRequest, } from '../model/request';
-import { ErrDataNotFound, ErrInvalidUser, ErrNone, ErrNotAuthorized, ErrSomethingWentWrong } from '../err/error';
+
 import { resFormattor } from '../utils/res_formatter';
-import { UserStatus } from '../enum/user';
+import { AccountType, UserStatus } from '../enum/user';
 import { GetUserOption } from '../model/sql_option';
 import { getOneUser } from '../dao/sql/profile';
 import { GetUserResult } from '../model/response';
+import { ErrDataNotFound, ErrNone, ErrNotAuthorized, ErrSomethingWentWrong } from '../err/error';
 
 /**
  * Handles user logout.
@@ -30,15 +31,11 @@ export async function getProfile(req: CustomRequest, res: Response, next: NextFu
             return
         }
 
-        if (user.status != UserStatus.ENABLE) {
-            res.json(resFormattor(ErrInvalidUser))
-            return
-        }
-
         let result: GetUserResult = {
             userId: user.id,
             username: user.username,
             email: user.email,
+            status: user.status,
             accountType: user.accountType,
         }
 

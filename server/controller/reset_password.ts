@@ -1,12 +1,12 @@
 import { Response, NextFunction } from 'express';
 import { CustomRequest, ResetPasswordReq } from '../model/request';
-import { ErrDataNotFound, ErrInvalidPassword, ErrInvalidRequest, ErrInvalidUser, ErrNone, ErrNotAuthorized, ErrPasswordNotMatch, ErrSomethingWentWrong } from '../err/error';
+import { ErrDataNotFound, ErrInvalidAccountType, ErrInvalidPassword, ErrInvalidRequest, ErrInvalidUser, ErrNone, ErrNotAuthorized, ErrPasswordNotMatch, ErrSomethingWentWrong } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
 import { getOneUser, updateUser } from '../dao/sql/profile'
 import { hashPassword, verifyPassword } from '../utils/hash';
 import { GetUserOption, UpdUserOption } from '../model/sql_option';
 import { validatePassword } from '../utils/password_validator';
-import { UserStatus } from '../enum/user';
+import { AccountType, UserStatus } from '../enum/user';
 
 /**
  * Handles user logout.
@@ -33,6 +33,11 @@ export async function resetPassword(req: CustomRequest, res: Response, next: Nex
 
         if (user.status != UserStatus.ENABLE) {
             res.json(resFormattor(ErrInvalidUser))
+            return
+        }
+
+        if (user.accountType != AccountType.EMAIL) {
+            res.json(resFormattor(ErrInvalidAccountType))
             return
         }
 
@@ -68,7 +73,7 @@ export async function resetPassword(req: CustomRequest, res: Response, next: Nex
             return
         }
 
-        const match = await verifyPassword(oldPassword, user.passphrase)
+        const match = await verifyPassword(oldPassword, user.passphrase!)
         if (!match) {
             res.json(resFormattor(ErrDataNotFound.newMsg('password is incorrect.')))
             return

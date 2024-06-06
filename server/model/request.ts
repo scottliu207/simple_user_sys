@@ -1,6 +1,5 @@
 import { Request } from "express";
-import { UserProfile } from "./user_profile";
-import { UserStatus } from "../enum/user";
+import { AccountType, UserStatus } from "../enum/user";
 
 export interface CustomRequest extends Request {
     accessToken?: string;
@@ -12,6 +11,11 @@ export interface SignUpRequest {
     email: string;
     password: string;
     confirmPassword: string;
+}
+
+export type ThirdPartySignUpRequest = {
+    authCode: string;
+    type: AccountType
 }
 
 export interface LoginRequest {

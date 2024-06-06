@@ -7,7 +7,7 @@ export interface UserProfile {
     username: string;
     accountType: AccountType;
     email: string;
-    passphrase: string;
+    passphrase?: string;
     status: UserStatus;
     lastSessionTime?: Date;
     createTime?: Date;
@@ -48,29 +48,6 @@ export class BaseUser implements UserProfile {
         return this.id
     }
 }
-
-export class GoogleUser extends BaseUser implements UserProfile {
-    constructor(username: string, email: string, passphrase: string) {
-        super(username, email, passphrase)
-        this.accountType = AccountType.GOOGLE
-        this.status = UserStatus.ENABLE
-    }
-
-
-    /**
-     * Create a new user
-     * @returns {Promise<string>} - User ID
-     */
-    async create(): Promise<string> {
-        await createUser(this)
-        return this.id
-    }
-
-    login(): string {
-        return ""
-    }
-}
-
 export interface LoginRecord {
     id: string;
     userId: string;

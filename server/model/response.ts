@@ -18,6 +18,7 @@ export interface GetUserResult extends BaseResult {
     userId: string;
     email: string;
     username: string;
+    status: UserStatus;
     accountType: AccountType;
 }
 

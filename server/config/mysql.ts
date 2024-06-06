@@ -18,7 +18,7 @@ export async function pingMySql() {
     let conn: mysql.PoolConnection | null = null;
 
     for (let i = 1; i <= 10; i++) {
-        await timeout(1000)
+        await timeout(3000)
         try {
             conn = await pool.getConnection()
             await conn.ping()
@@ -84,9 +84,9 @@ export async function txBegin(): Promise<mysql.PoolConnection> {
  * @param {any[]} params - The parameters for the query.
  * @returns {Promise<mysql.QueryResult>} - The results of the query.
  */
-export async function txQuery(connection: mysql.PoolConnection, query: string, params: any[]): Promise<mysql.QueryResult> {
+export async function txExec(connection: mysql.PoolConnection, query: string, params: any[]): Promise<mysql.QueryResult> {
     try {
-        const [results] = await connection.query(query, params)
+        const [results] = await connection.execute(query, params)
         return results;
     } catch (error: unknown) {
         await connection.rollback()
