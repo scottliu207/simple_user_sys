@@ -1,39 +1,35 @@
-import { randomBytes } from 'crypto'
-import jwt, { JwtPayload } from 'jsonwebtoken'
-import { genUuid } from './gen_uuid'
+import jwt, { JwtPayload } from 'jsonwebtoken';
+import { genUuid } from './gen_uuid';
 
 /**
- * 
- * @param userId - User's id
- * @returns {sessionId} - SessionId
+ * Generates a JWT token.
+ * @param userId - User's ID.
+ * @returns {string} - JWT token.
  */
 export function generateJwtToken(userId: string): string {
     const payload: JwtPayload = {
         userId: userId,
         aud: process.env.JWT_AUDIENCE!,
         iss: process.env.JWT_ISSUER!,
-    }
-    const token = jwt.sign(payload, process.env.JWT_SECRET!)
-    return token
+    };
+    const token = jwt.sign(payload, process.env.JWT_SECRET!);
+    return token;
 }
 
-
 /**
- * 
- * @param token -  User's sessionId 
- * @returns {redisKey} - User's session key stored on redis/
+ * Verifies a JWT token.
+ * @param token - User's session ID.
+ * @returns {string} - User's ID.
  */
 export function verifyJwtToken(token: string): string {
-    const payload = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload
-    return payload.userId
-};
+    const payload = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
+    return payload.userId;
+}
 
 /**
- * 
- * @param token -  User's sessionId 
- * @returns {token} - User's session key stored on redis/
+ * Generates a token.
+ * @returns {string} - A base64 encoded token.
  */
-
 export function generateToken(): string {
-    return Buffer.from(genUuid()).toString('base64')
-};
+    return Buffer.from(genUuid()).toString('base64');
+}

@@ -6,7 +6,3 @@ export type UserActivityReport = {
     createTime?: Date;
     updateTime?: Date;
 }
-
-
-
-

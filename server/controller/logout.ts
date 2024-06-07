@@ -1,7 +1,7 @@
 import { Response, NextFunction } from 'express';
-import { CustomRequest, } from '../model/request';
+import { CustomRequest } from '../model/request';
 import { ErrDataNotFound, ErrNone, ErrNotAuthorized, ErrSomethingWentWrong } from '../err/error';
-import { resFormattor } from '../utils/res_formatter';
+import { resFormatter } from '../utils/res_formatter';
 import { getUserTokenKey, redisClearUserToken, redisGetUserToken } from '../dao/cache/user_token';
 import { GetUserOption } from '../model/sql_option';
 import { getOneUser } from '../dao/sql/profile';
@@ -13,55 +13,52 @@ import { AuthGoogle } from '../auth/google';
 
 /**
  * Handles user logout.
- * @param req - Express request object
- * @param res - Express response object
- * @param next - Express next middleware function
+ * @param req - Express request object.
+ * @param res - Express response object.
+ * @param next - Express next middleware function.
  */
 export async function logout(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-
         if (!req.userId) {
-            res.json(resFormattor(ErrNotAuthorized))
-            return
+            res.json(resFormatter(ErrNotAuthorized));
+            return;
         }
 
         const getUserOpt: GetUserOption = {
             userId: req.userId,
-        }
+        };
 
-        const user = await getOneUser(getUserOpt)
+        const user = await getOneUser(getUserOpt);
         if (!user) {
-            res.json(resFormattor(ErrDataNotFound.newMsg('User not found.')))
-            return
+            res.json(resFormatter(ErrDataNotFound.newMsg('User not found.')));
+            return;
         }
 
-        let auth: AuthStrategy
+        let auth: AuthStrategy;
         switch (user.accountType) {
             case AccountType.EMAIL:
-                auth = new AuthBasic()
-                break
+                auth = new AuthBasic();
+                break;
             case AccountType.GOOGLE:
-                auth = new AuthGoogle()
-                break
+                auth = new AuthGoogle();
+                break;
             default:
-                res.json(resFormattor(ErrSomethingWentWrong.newMsg(`Unknown account type: ${user.accountType}`)))
-                return
+                res.json(resFormatter(ErrSomethingWentWrong.newMsg(`Unknown account type: ${user.accountType}`)));
+                return;
         }
 
-
-        const userToken = await redisGetUserToken(user.id)
+        const userToken = await redisGetUserToken(user.id);
         if (userToken) {
-            auth.revoke(userToken.accessToken)
-            const key = getUserTokenKey(user.id)
-            await redisDel(key)
-            await redisClearUserToken(user.id, userToken)
+            await auth.revoke(userToken.accessToken);
+            const key = getUserTokenKey(user.id);
+            await redisDel(key);
+            await redisClearUserToken(user.id, userToken);
         }
 
-        res.clearCookie(process.env.USER_SESSION_NAME!)
-        res.json(resFormattor(ErrNone))
-
+        res.clearCookie(process.env.USER_SESSION_NAME!);
+        res.json(resFormatter(ErrNone));
     } catch (error: unknown) {
-        console.log('Unkonwn error occured: ' + error)
-        res.json(resFormattor(ErrSomethingWentWrong))
+        console.log('Unknown error occurred: ' + error);
+        res.json(resFormatter(ErrSomethingWentWrong));
     }
-};
+}

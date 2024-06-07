@@ -1,10 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
 
-
 /**
- * Genarate a uuid
- * @returns {string} - uuid.
+ * Generates a UUID.
+ * @returns {string} - The generated UUID.
  */
 export function genUuid(): string {
-    return uuidv4()
+    return uuidv4();
 }

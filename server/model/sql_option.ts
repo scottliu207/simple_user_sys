@@ -1,6 +1,6 @@
-import { AccountType, UserStatus } from "../enum/user";
+import { AccountType, UserStatus } from '../enum/user';
 
-export interface GetUserOption {
+export type GetUserOption = {
     userId?: string;
     email?: string;
     username?: string;
@@ -9,7 +9,7 @@ export interface GetUserOption {
     perPage?: number;
 }
 
-export interface GetUsersOption {
+export type GetUsersOption = {
     userId?: string;
     email?: string;
     username?: string;
@@ -18,7 +18,7 @@ export interface GetUsersOption {
     perPage?: number;
 }
 
-export interface UpdUserOption {
+export type UpdUserOption = {
     username?: string;
     passphrase?: string;
     accountType?: AccountType;
@@ -26,19 +26,14 @@ export interface UpdUserOption {
     lastSessionTime?: Date;
 }
 
-export interface GetLoginRecordsOption {
-    userId?: string
-    page?: number
-    perPage?: number
+export type GetLoginRecordsOption = {
+    userId?: string;
+    page?: number;
+    perPage?: number;
 }
 
 export type GetUserSessionReportOption = {
     userId?: string;
     startTime: Date;
     endTime: Date;
-}
-
-export type GetUserSessionReportByDay = {
-    startTime: Date;
-    endTimme: Date;
 }

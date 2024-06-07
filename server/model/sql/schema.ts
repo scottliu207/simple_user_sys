@@ -1,9 +1,8 @@
-import { AccountType, UserStatus } from "../../enum/user";
+import { AccountType, UserStatus } from '../../enum/user';
 
 export type TotalUserSessionByDay = {
     totalUser: number;
 }
-
 
 export interface SqlUserProfile {
     id: string;

@@ -4,10 +4,10 @@ import { UserActivityReport } from '../../model/user_activity_report'
 
 
 /** 
- * Insert a new user's activity report
- * @param {UserActivityReport} reportData - activity report
- * @return {Promise<void>}
-*/
+ * Inserts a new user's activity report.
+ * @param reportData - Activity report data.
+ * @returns {Promise<void>}
+ */
 export async function createUserActivityReport(reportData: UserActivityReport): Promise<void> {
     let sql: string = ''
     let params: any[] = []
@@ -27,46 +27,16 @@ export async function createUserActivityReport(reportData: UserActivityReport): 
     try {
         await execute(sql, params)
     } catch (error: unknown) {
-        throw new Error(`sql exec failed-create user activity report, ${error}`)
-    }
-}
-
-/**
- * get total user's activity report
- * @param {GetUsersOption} option - where condition for filtering total report
- * @returns {Promise<number> } - total user activity report
- */
-export async function getTotalReport(option: GetUsersOption): Promise<number> {
-    let sql: string = ''
-    let params: any[] = []
-    let whereSql: string[] = []
-    sql += ' SELECT COUNT(*) AS `total` FROM `user_activity_report`'
-
-    if (option.userId) {
-        whereSql.push(' `user_id` = ? ')
-        params.push(option.userId)
-    }
-
-    if (whereSql.length != 0) {
-        sql = sql.concat(' WHERE ', whereSql.join(' AND '))
-    }
-
-    try {
-        let [row] = await execute(sql, params)
-        const result = row as { total: number }
-        return result.total
-
-    } catch (error: unknown) {
-        throw new Error(`sql exec failed-get total user activity report, ${error}`)
+        throw new Error(`SQL execution failed: create user activity report, ${error}`)
     }
 }
 
 /** 
- * get total user's activity report by day
- * @param { Date } startTime - condition for filtering start_time
- * @param { Date } endTime - condition for filtering end_time
- * @return {Promise<nubmer>} - total user's activity report
-*/
+ * Gets total user activity report by day.
+ * @param startTime - Condition for filtering start time.
+ * @param endTime - Condition for filtering end time.
+ * @returns {Promise<number>} - Total user activity report.
+ */
 export async function getTotalUserActivityByDay(startTime: Date, endTime: Date): Promise<number> {
     let sql: string = ''
     let params: any[] = []
@@ -89,6 +59,6 @@ export async function getTotalUserActivityByDay(startTime: Date, endTime: Date):
         return total
 
     } catch (error: unknown) {
-        throw new Error(`sql exec failed-get total user activity by day, ${error}`)
+        throw new Error(`SQL execution failed: get total user activity by day, ${error}`)
     }
 }

@@ -11,7 +11,3 @@ export type UserProfile = {
     createTime?: Date;
     updateTime?: Date;
 }
-
-
-
-

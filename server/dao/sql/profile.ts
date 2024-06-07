@@ -5,10 +5,10 @@ import { GetUserOption, GetUsersOption, UpdUserOption } from '../../model/sql_op
 import { paging } from '../../utils/paging'
 
 /** 
- * Insert a new user
- * @param input  - user's profile
- * @return {Promise<void>}
-*/
+ * Inserts a new user.
+ * @param input - User's profile.
+ * @returns {Promise<void>}
+ */
 export async function createUser(input: UserProfile): Promise<void> {
     let sql: string = ''
     let params: any[] = []
@@ -33,14 +33,14 @@ export async function createUser(input: UserProfile): Promise<void> {
     try {
         await execute(sql, params)
     } catch (error: unknown) {
-        throw new Error(`sql exec failed-create user, ${error}`)
+        throw new Error(`SQL execution failed: create user, ${error}`)
     }
 }
 
 /**
- * updates user's profile
- * @param {string} userId  - userId
- * @param {UpdUserOption} option - where condition for filtering user
+ * Updates user's profile.
+ * @param userId - User ID.
+ * @param option - Update options for filtering user.
  */
 export async function updateUser(userId: string, option: UpdUserOption): Promise<void> {
     let sql: string = ''
@@ -85,16 +85,16 @@ export async function updateUser(userId: string, option: UpdUserOption): Promise
     try {
         await execute(sql, params)
     } catch (error: unknown) {
-        throw new Error(`sql exec failed-update user, ${error}`)
+        throw new Error(`SQL execution failed: update user, ${error}`)
     }
 }
 
 
 /** 
- * get a user's profile
- * @param {GetUserOption } option  - where condition for querying a user
- * @return {Promise<UserProfile|null>}
-*/
+ * Gets a user's profile.
+ * @param option - Where condition for querying a user.
+ * @returns {Promise<UserProfile | null>}
+ */
 export async function getOneUser(option: GetUserOption): Promise<UserProfile | null> {
     let sql: string = ''
     let params: any[] = []
@@ -160,15 +160,15 @@ export async function getOneUser(option: GetUserOption): Promise<UserProfile | n
         return profile
 
     } catch (error: unknown) {
-        throw new Error(`sql exec failed-get one user, ${error}`)
+        throw new Error(`SQL execution failed: get one user, ${error}`)
     }
 }
 
 /** 
- * get user's profile
- * @param {string } option - where condition for querying users 
- * @return {Promise<UserProfile[]>} - a list of user's profile
-*/
+ * Gets users' profiles.
+ * @param option - Where condition for querying users.
+ * @returns {Promise<UserProfile[]>} - A list of users' profiles.
+ */
 export async function getUsers(option: GetUsersOption): Promise<UserProfile[]> {
     let sql: string = ''
     let params: any[] = []
@@ -237,14 +237,14 @@ export async function getUsers(option: GetUsersOption): Promise<UserProfile[]> {
         return users
 
     } catch (error: unknown) {
-        throw new Error(`sql exec failed-get users, ${error}`)
+        throw new Error(`SQL execution failed: get users, ${error}`)
     }
 }
 
 /**
- * get total user 
- * @param {GetUsersOption} option - where condition for querying total user
- * @returns {number} - total user
+ * Gets total number of users.
+ * @param option - Where condition for querying total users.
+ * @returns {Promise<number>} - Total number of users.
  */
 export async function getTotalUser(option: GetUsersOption): Promise<number> {
     let sql: string = ''
@@ -282,6 +282,6 @@ export async function getTotalUser(option: GetUsersOption): Promise<number> {
         return result.total
 
     } catch (error: unknown) {
-        throw new Error(`sql exec failed-get total user, ${error}`)
+        throw new Error(`SQL execution failed: get total user, ${error}`)
     }
 }

@@ -1,5 +1,5 @@
-import { AccountType, UserStatus } from "../enum/user";
-import { ErrorCode } from "../err/error";
+import { AccountType, UserStatus } from '../enum/user';
+import { ErrorCode } from '../err/error';
 
 export interface Res {
     httpCode: number;

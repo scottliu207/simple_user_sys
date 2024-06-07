@@ -1,37 +1,34 @@
-import { NextFunction, Response } from "express";
-import { resFormattor } from "../utils/res_formatter";
-import { ErrDataNotFound, ErrInvalidUser, ErrNotAuthorized, ErrSomethingWentWrong } from "../err/error";
-import { CustomRequest } from "../model/request";
-import { UserStatus } from "../enum/user";
-import { redisGet } from "../dao/cache/basic";
+import { NextFunction, Response } from 'express';
+import { resFormatter } from '../utils/res_formatter';
+import { ErrNotAuthorized, ErrSomethingWentWrong } from '../err/error';
+import { CustomRequest } from '../model/request';
+import { redisGet } from '../dao/cache/basic';
 
 /**
- * User authentication
- * @param req 
- * @param res 
- * @param next 
+ * User authentication middleware.
+ * @param req - Express request object.
+ * @param res - Express response object.
+ * @param next - Express next middleware function.
  */
-export async function authenticator(req: CustomRequest, res: Response, next: NextFunction) {
+export async function authenticator(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-        
         if (!req.accessToken) {
-            res.json(resFormattor(ErrNotAuthorized))
-            return
+            res.json(resFormatter(ErrNotAuthorized));
+            return;
         }
 
-        const userId = await redisGet(req.accessToken)
+        const userId = await redisGet(req.accessToken);
         if (!userId) {
-            res.json(resFormattor(ErrNotAuthorized))
-            return
+            res.json(resFormatter(ErrNotAuthorized));
+            return;
         }
 
-        req.userId = userId
-
+        req.userId = userId;
     } catch (error: unknown) {
-        console.log('Unkonwn error occured: ' + error)
-        res.json(resFormattor(ErrSomethingWentWrong))
-        return
+        console.log('Unknown error occurred: ' + error);
+        res.json(resFormatter(ErrSomethingWentWrong));
+        return;
     }
 
-    next()
+    next();
 }

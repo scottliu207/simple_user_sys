@@ -1,5 +1,5 @@
-import ms from 'ms'
-import { redis } from '../../config/redis'
+import ms from 'ms';
+import { redis } from '../../config/redis';
 
 /**
  * Sets a key-value pair in Redis with an expiration time.
@@ -9,12 +9,11 @@ import { redis } from '../../config/redis'
  */
 export async function redisSet(key: string, userId: string, expiresIn: string): Promise<void> {
     try {
-        await redis.set(key, userId, 'EX', ms(expiresIn) / 1000)
+        await redis.set(key, userId, 'EX', ms(expiresIn) / 1000);
     } catch (error: unknown) {
-        throw error
+        throw error;
     }
 }
-
 
 /**
  * Gets the value of a key from Redis.
@@ -23,13 +22,12 @@ export async function redisSet(key: string, userId: string, expiresIn: string): 
  */
 export async function redisGet(key: string): Promise<string | null> {
     try {
-        const value = await redis.get(key)
-        return value
+        const value = await redis.get(key);
+        return value;
     } catch (error: unknown) {
-        throw error
+        throw error;
     }
 }
-
 
 /**
  * Deletes a key from Redis.
@@ -37,9 +35,8 @@ export async function redisGet(key: string): Promise<string | null> {
  */
 export async function redisDel(key: string): Promise<void> {
     try {
-        const _ = await redis.del(key)
-        return
+        await redis.del(key);
     } catch (error: unknown) {
-        throw error
+        throw error;
     }
 }

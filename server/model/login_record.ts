@@ -4,9 +4,3 @@ export interface LoginRecord {
     createTime?: Date;
     updateTime?: Date;
 }
-
-
-
-
-
-

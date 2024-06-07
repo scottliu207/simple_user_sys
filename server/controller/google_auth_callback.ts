@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { ErrDataNotFound, ErrInvalidRequest, ErrInvalidToken, ErrInvalidUser, ErrNone, ErrSomethingWentWrong } from '../err/error';
-import { resFormattor } from '../utils/res_formatter';
-import { createUser, getOneUser, updateUser } from '../dao/sql/profile'
+import { resFormatter } from '../utils/res_formatter';
+import { createUser, getOneUser, updateUser } from '../dao/sql/profile';
 import { verifyPassword } from '../utils/hash';
 import { GetUserOption, UpdUserOption } from '../model/sql_option';
 import { AccountType, UserStatus } from '../enum/user';
@@ -16,80 +16,79 @@ import { redisSetUserActivity } from '../dao/cache/user_activity';
 import { SignInResult } from '../model/response';
 
 /**
- * Handles user login.
- * @param req - Express request object
- * @param res - Express response object
- * @param next - Express next middleware function
+ * Handles Google authentication callback.
+ * @param req - Express request object.
+ * @param res - Express response object.
+ * @param next - Express next middleware function.
  */
 export async function googleAuthCallback(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-        const { code } = req.body
-        if (!code) {
-            res.json(resFormattor(ErrInvalidRequest.newMsg('code is required.')))
-            return
-        }
-
-        const google = new AuthGoogle()
-        const token = await google.getToken(code)
-        if (!token || !token.idToken || !token.accessToken || !token.refreshToken) {
-            res.json(resFormattor(ErrInvalidRequest.newMsg('Invalid authCode')))
-            return
-        }
-
-        const payload = await google.getUserProfile(token.idToken)
-        if (!payload) {
-            res.json(resFormattor(ErrInvalidToken))
-            return
-        }
-
-        if (!payload.email) {
-            res.json(resFormattor(ErrSomethingWentWrong.newMsg('Failed to retrieve the email from OAuth.')))
-            return
-        }
-
-        const getUserOpt: GetUserOption = {
-            email: payload.email,
-        }
-
-        let user = await getOneUser(getUserOpt)
-        if (!user) {
-            const userid = genUuid()
-            const profile: UserProfile = {
-                id: userid,
-                username: payload.name ? payload.name : userid,
-                passphrase: '',
-                accountType: AccountType.GOOGLE,
-                status: UserStatus.ENABLE,
-                email: payload.email,
-
-            }
-
-            await createUser(profile)
-            user = profile
-        } else {
-            const updOpt: UpdUserOption = {
-                accountType: AccountType.GOOGLE,
-                passphrase: ''
-            }
-            await updateUser(user.id, updOpt)
-        }
-
-        const accessToken: Token = { token: token.accessToken, expriresIn: process.env.ACCESS_TOKEN_EXPIRE! }
-        const refreshToken: Token = { token: token.refreshToken, expriresIn: process.env.REFRESH_TOKEN_EXPIRE! }
-        let userToken = await redisGetUserToken(user.id)
-
-        await redisSetUserToken(user.id, userToken, accessToken, refreshToken)
-        await createLoginRecord(user.id)
-        await redisSetUserActivity(user.id)
-
-        const result: SignInResult = {
-            accessToken: accessToken.token,
-            refreshToken: refreshToken.token,
-        }
-
-        res.json(resFormattor(ErrNone, result))
-    } catch (error: unknown) {
-        console.log('Unkonwn error occured: ' + error)
-        res.json(resFormattor(ErrSomethingWentWrong))
+  try {
+    const { code } = req.body;
+    if (!code) {
+      res.json(resFormatter(ErrInvalidRequest.newMsg('Code is required.')));
+      return;
     }
-};
+    const decodedCode = decodeURIComponent(code);
+    const google = new AuthGoogle();
+    const token = await google.getToken(decodedCode);
+    if (!token || !token.idToken || !token.accessToken || !token.refreshToken) {
+      res.json(resFormatter(ErrInvalidRequest.newMsg('Invalid auth code')));
+      return;
+    }
+
+    const payload = await google.getUserProfile(token.idToken);
+    if (!payload) {
+      res.json(resFormatter(ErrInvalidToken));
+      return;
+    }
+
+    if (!payload.email) {
+      res.json(resFormatter(ErrSomethingWentWrong.newMsg('Failed to retrieve the email from OAuth.')));
+      return;
+    }
+
+    const getUserOpt: GetUserOption = {
+      email: payload.email,
+    };
+
+    let user = await getOneUser(getUserOpt);
+    if (!user) {
+      const userId = genUuid();
+      const profile: UserProfile = {
+        id: userId,
+        username: payload.name ? payload.name : userId,
+        passphrase: '',
+        accountType: AccountType.GOOGLE,
+        status: UserStatus.ENABLE,
+        email: payload.email,
+      };
+
+      await createUser(profile);
+      user = profile;
+    } else {
+      const updOpt: UpdUserOption = {
+        accountType: AccountType.GOOGLE,
+        passphrase: '',
+      };
+      await updateUser(user.id, updOpt);
+    }
+
+    const accessToken: Token = { token: token.accessToken, expiresIn: process.env.ACCESS_TOKEN_EXPIRE! };
+    const refreshToken: Token = { token: token.refreshToken, expiresIn: process.env.REFRESH_TOKEN_EXPIRE! };
+    const userToken = await redisGetUserToken(user.id);
+
+    await redisSetUserToken(user.id, userToken, accessToken, refreshToken);
+    await createLoginRecord(user.id);
+    await redisSetUserActivity(user.id);
+
+    const result: SignInResult = {
+      accessToken: accessToken.token,
+      refreshToken: refreshToken.token,
+    };
+
+    res.json(resFormatter(ErrNone, result));
+  } catch (error: unknown) {
+    console.log('Unknown error occurred: ' + error);
+    res.json(resFormatter(ErrSomethingWentWrong));
+  }
+}

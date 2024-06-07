@@ -4,7 +4,7 @@ import { SignUpResult } from '../model/response';
 import { SignUpRequest } from '../model/request';
 import { hashPassword } from '../utils/hash';
 import { ErrDataAlreadyExists, ErrInvalidRequest, ErrSomethingWentWrong, ErrNone, ErrPasswordNotMatch, ErrInvalidPassword } from '../err/error';
-import { resFormattor } from '../utils/res_formatter';
+import { resFormatter } from '../utils/res_formatter';
 import { GetUserOption } from '../model/sql_option';
 import { validatePassword } from '../utils/password_validator';
 import { sendEmail } from '../utils/email';
@@ -16,71 +16,72 @@ import { AccountType, UserStatus } from '../enum/user';
 
 /**
  * Handles user sign-up.
- * @param req - Express request object
- * @param res - Express response object
- * @param next - Express next middleware function
+ * @param req - Express request object.
+ * @param res - Express response object.
+ * @param next - Express next middleware function.
  */
 export async function signUp(req: Request, res: Response, next: NextFunction): Promise<void> {
-
     try {
-        const { username, email, password, confirmPassword } = req.body as SignUpRequest
+        const { username, email, password, confirmPassword } = req.body as SignUpRequest;
+
         if (!username) {
-            res.json(resFormattor(ErrInvalidRequest.newMsg('username is required.')))
-            return
+            res.json(resFormatter(ErrInvalidRequest.newMsg('Username is required.')));
+            return;
         }
 
         if (!email) {
-            res.json(resFormattor(ErrInvalidRequest.newMsg('email is required.')))
-            return
+            res.json(resFormatter(ErrInvalidRequest.newMsg('Email is required.')));
+            return;
         }
 
         if (!password) {
-            res.json(resFormattor(ErrInvalidRequest.newMsg('password is required.')))
-            return
+            res.json(resFormatter(ErrInvalidRequest.newMsg('Password is required.')));
+            return;
         }
 
         if (!confirmPassword) {
-            res.json(resFormattor(ErrInvalidRequest.newMsg('confirmPassword is required.')))
-            return
+            res.json(resFormatter(ErrInvalidRequest.newMsg('Confirm password is required.')));
+            return;
         }
 
         if (!validatePassword(password)) {
-            res.json(resFormattor(ErrInvalidPassword.newMsg('Invalid password')))
-            return
+            res.json(resFormatter(ErrInvalidPassword.newMsg('Invalid password.')));
+            return;
         }
 
         if (!validatePassword(confirmPassword)) {
-            res.json(resFormattor(ErrInvalidPassword.newMsg('Invalid confirm password')))
-            return
+            res.json(resFormatter(ErrInvalidPassword.newMsg('Invalid confirm password.')));
+            return;
         }
 
-        if (password != confirmPassword) {
-            res.json(resFormattor(ErrPasswordNotMatch))
-            return
+        if (password !== confirmPassword) {
+            res.json(resFormatter(ErrPasswordNotMatch));
+            return;
         }
 
         const emailOpt: GetUserOption = {
             email: email,
-        }
+        };
 
-        const userEmailExist = await getOneUser(emailOpt)
+        const userEmailExist = await getOneUser(emailOpt);
         if (userEmailExist) {
-            res.json(resFormattor(ErrDataAlreadyExists.newMsg('email already exists.')))
-            return
+            res.json(resFormatter(ErrDataAlreadyExists.newMsg('Email already exists.')));
+            return;
         }
 
         const nameOpt: GetUserOption = {
             username: username,
-        }
-        const usernameExist = await getOneUser(nameOpt)
+        };
+
+        const usernameExist = await getOneUser(nameOpt);
         if (usernameExist) {
-            res.json(resFormattor(ErrDataAlreadyExists.newMsg('username already exists.')))
-            return
+            res.json(resFormatter(ErrDataAlreadyExists.newMsg('Username already exists.')));
+            return;
         }
 
-        const hashedPassword = await hashPassword(password)
-        const userId = genUuid()
-        const emailToken = generateJwtToken(userId)
+        const hashedPassword = await hashPassword(password);
+        const userId = genUuid();
+        const emailToken = generateJwtToken(userId);
         const user: UserProfile = {
             id: userId,
             username: username,
@@ -88,21 +89,19 @@ export async function signUp(req: Request, res: Response, next: NextFunction): P
             passphrase: hashedPassword,
             accountType: AccountType.EMAIL,
             status: UserStatus.UNVERIFIED,
-        }
+        };
 
-        await createUser(user)
-        await setEmailToken(userId)
-        await sendEmail(email, username, emailToken)
+        await createUser(user);
+        await setEmailToken(userId);
+        await sendEmail(email, username, emailToken);
 
         const result: SignUpResult = {
             userId: userId,
-        }
+        };
 
-        res.json(resFormattor(ErrNone, result))
-        return
+        res.json(resFormatter(ErrNone, result));
     } catch (error: unknown) {
-        console.log('Unkonwn error occured, ' + error)
-        res.json(resFormattor(ErrSomethingWentWrong))
-        return
+        console.log('Unknown error occurred: ' + error);
+        res.json(resFormatter(ErrSomethingWentWrong));
     }
-};
+}
