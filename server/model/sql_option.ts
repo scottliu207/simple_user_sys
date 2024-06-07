@@ -1,4 +1,4 @@
-import { UserStatus } from "../enum/user";
+import { AccountType, UserStatus } from "../enum/user";
 
 export interface GetUserOption {
     userId?: string;
@@ -21,7 +21,7 @@ export interface GetUsersOption {
 export interface UpdUserOption {
     username?: string;
     passphrase?: string;
-    accountType?: string;
+    accountType?: AccountType;
     status?: UserStatus;
     lastSessionTime?: Date;
 }

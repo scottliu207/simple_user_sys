@@ -6,6 +6,10 @@ import { getUserTokenKey, redisClearUserToken, redisGetUserToken } from '../dao/
 import { GetUserOption } from '../model/sql_option';
 import { getOneUser } from '../dao/sql/profile';
 import { redisDel } from '../dao/cache/basic';
+import { AccountType } from '../enum/user';
+import { AuthStrategy } from '../auth/base';
+import { AuthBasic } from '../auth/basic';
+import { AuthGoogle } from '../auth/google';
 
 /**
  * Handles user logout.
@@ -31,8 +35,23 @@ export async function logout(req: CustomRequest, res: Response, next: NextFuncti
             return
         }
 
+        let auth: AuthStrategy
+        switch (user.accountType) {
+            case AccountType.EMAIL:
+                auth = new AuthBasic()
+                break
+            case AccountType.GOOGLE:
+                auth = new AuthGoogle()
+                break
+            default:
+                res.json(resFormattor(ErrSomethingWentWrong.newMsg(`Unknown account type: ${user.accountType}`)))
+                return
+        }
+
+
         const userToken = await redisGetUserToken(user.id)
         if (userToken) {
+            auth.revoke(userToken.accessToken)
             const key = getUserTokenKey(user.id)
             await redisDel(key)
             await redisClearUserToken(user.id, userToken)

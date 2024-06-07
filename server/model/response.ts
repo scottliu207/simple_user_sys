@@ -11,7 +11,12 @@ export interface Res {
 export interface BaseResult { }
 
 export interface SignUpResult extends BaseResult {
-    userId: string
+    userId: string;
+}
+
+export interface SignInResult extends BaseResult {
+    accessToken: string;
+    refreshToken: string;
 }
 
 export interface GetUserResult extends BaseResult {

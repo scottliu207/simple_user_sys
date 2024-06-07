@@ -1,14 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
-import { LoginRequest } from '../model/request';
+import { SignInRequest } from '../model/request';
 import { ErrDataNotFound, ErrInvalidAccountType, ErrInvalidRequest, ErrNone, ErrSomethingWentWrong } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
-import { getOneUser } from '../dao/sql/profile'
+import { getOneUser, updateUser } from '../dao/sql/profile'
 import { verifyPassword } from '../utils/hash';
-import { GetUserOption } from '../model/sql_option';
+import { GetUserOption, UpdUserOption } from '../model/sql_option';
 import { AccountType, UserStatus } from '../enum/user';
 import { generateToken } from '../utils/token';
 import { Token, redisGetUserToken, redisSetUserToken } from '../dao/cache/user_token';
 import { createLoginRecord } from '../dao/sql/login_record';
+import { redisSetUserActivity } from '../dao/cache/user_activity';
+import { SignInResult } from '../model/response';
 
 /**
  * Handles user login.
@@ -16,9 +18,9 @@ import { createLoginRecord } from '../dao/sql/login_record';
  * @param res - Express response object
  * @param next - Express next middleware function
  */
-export async function login(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function signIn(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-        const { email, password } = req.body as LoginRequest
+        const { email, password } = req.body as SignInRequest
         if (!email) {
             res.json(resFormattor(ErrInvalidRequest.newMsg('email is required.')))
             return
@@ -55,14 +57,22 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
         let userToken = await redisGetUserToken(user.id)
 
         await redisSetUserToken(user.id, userToken, accessToken, refreshToken)
-        userToken = {
+
+
+        const updOpt: UpdUserOption = {
+            lastSessionTime: new Date,
+        }
+
+        await updateUser(user.id, updOpt)
+        await createLoginRecord(user.id)
+        await redisSetUserActivity(user.id)
+
+        const result: SignInResult = {
             accessToken: accessToken.token,
             refreshToken: refreshToken.token,
         }
-
-        await createLoginRecord(user.id)
-
-        res.json(resFormattor(ErrNone, userToken))
+        
+        res.json(resFormattor(ErrNone, result))
     } catch (error: unknown) {
         console.log('Unkonwn error occured: ' + error)
         res.json(resFormattor(ErrSomethingWentWrong))

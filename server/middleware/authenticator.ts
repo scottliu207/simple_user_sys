@@ -13,7 +13,7 @@ import { redisGet } from "../dao/cache/basic";
  */
 export async function authenticator(req: CustomRequest, res: Response, next: NextFunction) {
     try {
-
+        
         if (!req.accessToken) {
             res.json(resFormattor(ErrNotAuthorized))
             return

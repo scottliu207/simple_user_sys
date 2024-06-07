@@ -1,5 +1,5 @@
 import { Response, NextFunction } from 'express';
-import { CustomRequest, ResetPasswordReq } from '../model/request';
+import { CustomRequest, ResetPasswordRequest } from '../model/request';
 import { ErrDataNotFound, ErrInvalidAccountType, ErrInvalidPassword, ErrInvalidRequest, ErrInvalidUser, ErrNone, ErrNotAuthorized, ErrPasswordNotMatch, ErrSomethingWentWrong } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
 import { getOneUser, updateUser } from '../dao/sql/profile'
@@ -16,6 +16,8 @@ import { AccountType, UserStatus } from '../enum/user';
  */
 export async function resetPassword(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
     try {
+        const { oldPassword, newPassword, newConfirmPassword } = req.body as ResetPasswordRequest
+
         if (!req.userId) {
             res.json(resFormattor(ErrNotAuthorized))
             return
@@ -41,7 +43,6 @@ export async function resetPassword(req: CustomRequest, res: Response, next: Nex
             return
         }
 
-        const { oldPassword, newPassword, newConfirmPassword } = req.body as ResetPasswordReq
 
         if (!oldPassword) {
             res.json(resFormattor(ErrInvalidRequest.newMsg('oldPasword is required.')))

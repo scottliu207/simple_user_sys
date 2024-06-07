@@ -1,9 +1,8 @@
 import { UserProfile } from '../../model/user_profile'
-import { SqlUserProfile } from '../../model/sql_schema'
+import { SqlUserProfile } from '../../model/sql/schema'
 import { execute } from '../../config/mysql'
 import { GetUserOption, GetUsersOption, UpdUserOption } from '../../model/sql_option'
 import { paging } from '../../utils/paging'
-
 
 /** 
  * Insert a new user
@@ -39,9 +38,9 @@ export async function createUser(input: UserProfile): Promise<void> {
 }
 
 /**
- * 
- * @param userId 
- * @param option 
+ * updates user's profile
+ * @param {string} userId  - userId
+ * @param {UpdUserOption} option - where condition for filtering user
  */
 export async function updateUser(userId: string, option: UpdUserOption): Promise<void> {
     let sql: string = ''
@@ -93,8 +92,7 @@ export async function updateUser(userId: string, option: UpdUserOption): Promise
 
 /** 
  * get a user's profile
- * @param {string } userId - user id 
- * @param {string } email  - user's email
+ * @param {GetUserOption } option  - where condition for querying a user
  * @return {Promise<UserProfile|null>}
 */
 export async function getOneUser(option: GetUserOption): Promise<UserProfile | null> {
@@ -167,9 +165,9 @@ export async function getOneUser(option: GetUserOption): Promise<UserProfile | n
 }
 
 /** 
- * get a user's profile
- * @param {string } option - option for get users 
- * @return {Promise<UserProfile|null>}
+ * get user's profile
+ * @param {string } option - where condition for querying users 
+ * @return {Promise<UserProfile[]>} - a list of user's profile
 */
 export async function getUsers(option: GetUsersOption): Promise<UserProfile[]> {
     let sql: string = ''
@@ -243,6 +241,11 @@ export async function getUsers(option: GetUsersOption): Promise<UserProfile[]> {
     }
 }
 
+/**
+ * get total user 
+ * @param {GetUsersOption} option - where condition for querying total user
+ * @returns {number} - total user
+ */
 export async function getTotalUser(option: GetUsersOption): Promise<number> {
     let sql: string = ''
     let params: any[] = []

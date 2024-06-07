@@ -8,6 +8,8 @@ import cookieParser from 'cookie-parser';
 import { extractToken } from '../middleware/extract_token';
 import schedule from 'node-schedule'
 import { backUpUserActivites } from '../background/backup_user_activities';
+import { callbackRouteV1 } from '../routes/callback';
+import { userSessionTracker } from '../middleware/user_session_tracker';
 
 const app = express();
 
@@ -34,6 +36,7 @@ export async function start() {
 
     app.use(extractToken)
     app.use('/api/user/v1', userRouteV1)
+    app.use('/api/callback/v1', callbackRouteV1)
 
     app.listen(port, () => {
         console.log(`server is listening on ${port}`);

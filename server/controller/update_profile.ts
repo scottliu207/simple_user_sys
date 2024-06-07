@@ -1,5 +1,5 @@
 import { Response, NextFunction } from 'express';
-import { CustomRequest, UpdateProfileReq } from '../model/request';
+import { CustomRequest, UpdateProfileRequest } from '../model/request';
 import { ErrDataNotFound, ErrInvalidRequest, ErrInvalidUser, ErrNone, ErrNotAuthorized, ErrSomethingWentWrong } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
 import { getOneUser, updateUser } from '../dao/sql/profile'
@@ -14,6 +14,7 @@ import { GetUserOption, UpdUserOption } from '../model/sql_option';
  */
 export async function updateProfile(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
     try {
+        const { username } = req.body as UpdateProfileRequest
 
         if (!req.userId) {
             res.json(resFormattor(ErrNotAuthorized))
@@ -35,7 +36,6 @@ export async function updateProfile(req: CustomRequest, res: Response, next: Nex
             return
         }
 
-        const { username } = req.body as UpdateProfileReq
 
         if (!username) {
             res.json(resFormattor(ErrInvalidRequest.newMsg('username is required.')))

@@ -1,13 +1,12 @@
-import { LoginRecord } from '../../model/user_profile'
-import { SqlLoginRecord } from '../../model/sql_schema'
+import { LoginRecord } from '../../model/login_record'
+import { SqlLoginRecord } from '../../model/sql/schema'
 import { execute } from '../../config/mysql'
 import { GetLoginRecordsOption, GetUsersOption } from '../../model/sql_option'
 import { paging } from '../../utils/paging'
 
-
 /** 
  * Insert a new user login record
- * @param input  - user's profile
+ * @param {string} userId  - userId
  * @return {Promise<void>}
 */
 export async function createLoginRecord(userId: string): Promise<void> {
@@ -26,11 +25,10 @@ export async function createLoginRecord(userId: string): Promise<void> {
     }
 }
 
-
 /** 
  * get user's login records
- * @param {string } option - option for get users 
- * @return {Promise<UserProfile|null>}
+ * @param {string } option - where condition for querying user's login records 
+ * @return {Promise<LoginRecord[]>} - a list of user's login record
 */
 export async function getLoginRecords(option: GetLoginRecordsOption): Promise<LoginRecord[]> {
     let sql: string = ''
@@ -82,10 +80,10 @@ export async function getLoginRecords(option: GetLoginRecordsOption): Promise<Lo
 
 /**
  * 
- * @param option 
- * @returns 
+ * @param {GetUsersOption} option - where condition for querying total user's login record
+ * @returns {Promise<number>} - total user's login record
  */
-export async function getTotalRecord(option: GetUsersOption): Promise<number> {
+export async function getTotalReport(option: GetUsersOption): Promise<number> {
     let sql: string = ''
     let params: any[] = []
     let whereSql: string[] = []
@@ -110,45 +108,3 @@ export async function getTotalRecord(option: GetUsersOption): Promise<number> {
     }
 }
 
-
-/** 
- * get user's login records
- * @param {string } option - option for get users 
- * @return {Promise<UserProfile|null>}
-*/
-export async function getLoginRecordsCountByUser(option: GetLoginRecordsOption): Promise<LoginRecord[]> {
-    let sql: string = ''
-    let params: any[] = []
-    let whereSql: string[] = []
-    sql += ' SELECT COUNT(*) as `total` FROM `login_record` '
-
-    if (option.userId) {
-        whereSql.push(' `user_id` = ? ')
-        params.push(option.userId)
-    }
-
-    if (whereSql.length != 0) {
-        sql = sql.concat(' WHERE ', whereSql.join(' AND '))
-    }
-
-    sql += 'GROUP BY `user_id`'
-
-    try {
-        let records: LoginRecord[] = []
-        let rows = await execute(sql, params)
-        for (const row of rows) {
-            const dataDb = row as SqlLoginRecord
-            const record: LoginRecord = {
-                id: dataDb.id,
-                userId: dataDb.user_id,
-                createTime: dataDb.create_time,
-                updateTime: dataDb.update_time,
-            }
-            records.push(record)
-        }
-        return records
-
-    } catch (error: unknown) {
-        throw new Error(`sql exec failed-get login record count, ${error}`)
-    }
-}

@@ -24,11 +24,6 @@ export async function resendEmail(req: CustomRequest, res: Response, next: NextF
         }
 
         const count = await getEmailToken(req.userId)
-        if (count < 1) {
-            res.json(resFormattor(ErrInvalidRequest.newMsg('Invalid token.')))
-            return
-        }
-
         const maxTry: number = process.env.EMAIL_MAX_TRY ? +process.env.EMAIL_MAX_TRY : 5
         if (count > maxTry) {
             res.json(resFormattor(ErrMaxVerifyTryExceed))

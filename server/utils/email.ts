@@ -6,9 +6,9 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY!)
 
 
 /**
- * 
- * @param address 
- * @param username 
+ * sending user verify email
+ * @param {string} address - receiver email
+ * @param {string} username - receiver name, username will show on the email context. 
  */
 export async function sendEmail(address: string, username: string, token: string) {
     const appName = 'The Scott\' Simple User Sys'
@@ -18,11 +18,11 @@ export async function sendEmail(address: string, username: string, token: string
     
     Thank you for registering with ${appName}. To complete your registration, please verify your email address by clicking the link below:
     
-    ${process.env.DOMAIN}/verify-email?token=${token}
+    ${process.env.EMAIL_REDIRECT}?token=${token}
     
     If the above link does not work, please copy and paste the following URL into your web browser:
     
-    ${process.env.DOMAIN}/verify-email?token=${token}
+    ${process.env.EMAIL_REDIRECT}?token=${token}
     
     If you did not create an account with ${appName}, please ignore this email.
     
@@ -69,9 +69,9 @@ export async function sendEmail(address: string, username: string, token: string
             <div class="content">
                 <p>Hello ${username},</p>
                 <p>Thank you for registering with ${appName}. To complete your registration, please verify your email address by clicking the link below:</p>
-                <p><a href="${process.env.DOMAIN}/verify-email?token=${token}">${process.env.DOMAIN}/verify-email?token=${token}</a></p>
+                <p><a href="${process.env.EMAIL_REDIRECT}?token=${token}">${process.env.EMAIL_REDIRECT}?token=${token}</a></p>
                 <p>If the above link does not work, please copy and paste the following URL into your web browser:</p>
-                <p><a href="${process.env.DOMAIN}/verify-email?token=${token}">${process.env.DOMAIN}/verify-email?token=${token}</a></p>
+                <p><a href="${process.env.EMAIL_REDIRECT}?token=${token}">${process.env.EMAIL_REDIRECT}?token=${token}</a></p>
                 <p>If you did not create an account with ${appName}, please ignore this email.</p>
                 <p>Best regards,<br>${appName}</p>
             </div>

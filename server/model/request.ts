@@ -13,21 +13,16 @@ export interface SignUpRequest {
     confirmPassword: string;
 }
 
-export type ThirdPartySignUpRequest = {
-    authCode: string;
-    type: AccountType
-}
-
-export interface LoginRequest {
+export interface SignInRequest {
     email: string;
     password: string;
 }
 
-export interface UpdateProfileReq {
+export interface UpdateProfileRequest {
     username: string;
 }
 
-export interface ResetPasswordReq {
+export interface ResetPasswordRequest {
     oldPassword: string;
     newPassword: string;
     newConfirmPassword: string;
@@ -41,8 +36,11 @@ export interface VerifyTokenRequest {
     token: string;
 }
 
-
 export interface ResendEmailRequest {
+    token: string;
+}
+
+export interface RefreshTokenRequest {
     token: string;
 }
 

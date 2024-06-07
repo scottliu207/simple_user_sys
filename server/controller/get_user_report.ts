@@ -31,10 +31,11 @@ export async function getUserReport(req: CustomRequest, res: Response, next: Nex
         currentDay.startTime.setUTCDate(newStartDate)
 
         const totalUserSevenDay = await getTotalUserActivityByDay(currentDay.startTime, currentDay.endTime)
+
         const result: GetReportResult = {
             totalSignUp: totalSignUp,
             totalActiveUserToday: totalUserToday,
-            avgActiveUserLastSevenDay: totalUserSevenDay/7
+            avgActiveUserLastSevenDay: parseFloat((totalUserSevenDay / 7).toFixed(2))
         }
 
         res.json(resFormattor(ErrNone, result))

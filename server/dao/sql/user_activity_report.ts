@@ -1,13 +1,11 @@
-import { LoginRecord } from '../../model/user_profile'
-import { SqlLoginRecord } from '../../model/sql_schema'
 import { execute } from '../../config/mysql'
-import { GetUserSessionReportOption, GetUsersOption } from '../../model/sql_option'
+import { GetUsersOption } from '../../model/sql_option'
 import { UserActivityReport } from '../../model/user_activity_report'
 
 
 /** 
- * Insert a new user login record
- * @param input  - user's profile
+ * Insert a new user's activity report
+ * @param {UserActivityReport} reportData - activity report
  * @return {Promise<void>}
 */
 export async function createUserActivityReport(reportData: UserActivityReport): Promise<void> {
@@ -33,69 +31,12 @@ export async function createUserActivityReport(reportData: UserActivityReport): 
     }
 }
 
-
-/** 
- * get user's login records
- * @param {string } option - option for get users 
- * @return {Promise<UserProfile|null>}
-*/
-export async function getUserActivityReport(option: GetUserSessionReportOption): Promise<LoginRecord[]> {
-    let sql: string = ''
-    let params: any[] = []
-    let whereSql: string[] = []
-    sql += ' SELECT '
-    sql += '   `user_id`, '
-    sql += '   `start_time`,  '
-    sql += '   `end_time`,  '
-    sql += '   `user_activity_count` '
-    sql += ' FROM `user_activity_report` '
-
-    if (option.userId) {
-        whereSql.push(' `user_id` = ? ')
-        params.push(option.userId)
-    }
-
-    if (option.startTime) {
-        whereSql.push(' `start_time` = ? ')
-        params.push(option.startTime)
-    }
-
-    if (option.startTime) {
-        whereSql.push(' `end_time` = ? ')
-        params.push(option.endTime)
-    }
-
-    if (whereSql.length != 0) {
-        sql = sql.concat(' WHERE ', whereSql.join(' AND '))
-    }
-
-    try {
-        let records: LoginRecord[] = []
-        let rows = await execute(sql, params)
-        for (const row of rows) {
-            const dataDb = row as SqlLoginRecord
-            const record: LoginRecord = {
-                id: dataDb.id,
-                userId: dataDb.user_id,
-                createTime: dataDb.create_time,
-                updateTime: dataDb.update_time,
-            }
-            records.push(record)
-
-        }
-        return records
-
-    } catch (error: unknown) {
-        throw new Error(`sql exec failed-get user activity report, ${error}`)
-    }
-}
-
 /**
- * 
- * @param option 
- * @returns 
+ * get total user's activity report
+ * @param {GetUsersOption} option - where condition for filtering total report
+ * @returns {Promise<number> } - total user activity report
  */
-export async function getTotalRecord(option: GetUsersOption): Promise<number> {
+export async function getTotalReport(option: GetUsersOption): Promise<number> {
     let sql: string = ''
     let params: any[] = []
     let whereSql: string[] = []
@@ -121,9 +62,10 @@ export async function getTotalRecord(option: GetUsersOption): Promise<number> {
 }
 
 /** 
- * get user's login records
- * @param {string } option - option for get users 
- * @return {Promise<UserProfile|null>}
+ * get total user's activity report by day
+ * @param { Date } startTime - condition for filtering start_time
+ * @param { Date } endTime - condition for filtering end_time
+ * @return {Promise<nubmer>} - total user's activity report
 */
 export async function getTotalUserActivityByDay(startTime: Date, endTime: Date): Promise<number> {
     let sql: string = ''

@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { getOneUser } from '../dao/sql/profile';
-import { BaseUser } from '../model/user_profile';
+import { createUser, getOneUser } from '../dao/sql/profile';
 import { SignUpResult } from '../model/response';
 import { SignUpRequest } from '../model/request';
 import { hashPassword } from '../utils/hash';
@@ -12,6 +11,8 @@ import { sendEmail } from '../utils/email';
 import { generateJwtToken } from '../utils/token';
 import { genUuid } from '../utils/gen_uuid';
 import { setEmailToken } from '../dao/cache/email_token';
+import { UserProfile } from '../model/user_profile';
+import { AccountType, UserStatus } from '../enum/user';
 
 /**
  * Handles user sign-up.
@@ -80,15 +81,22 @@ export async function signUp(req: Request, res: Response, next: NextFunction): P
         const hashedPassword = await hashPassword(password)
         const userId = genUuid()
         const emailToken = generateJwtToken(userId)
-        const profile = new BaseUser(username, email, hashedPassword, userId)
-        const _ = await profile.create()
+        const user: UserProfile = {
+            id: userId,
+            username: username,
+            email: email,
+            passphrase: hashedPassword,
+            accountType: AccountType.EMAIL,
+            status: UserStatus.UNVERIFIED,
+        }
+
+        await createUser(user)
+        await setEmailToken(userId)
+        await sendEmail(email, username, emailToken)
 
         const result: SignUpResult = {
             userId: userId,
         }
-
-        await setEmailToken(userId)
-        await sendEmail(email, username, emailToken)
 
         res.json(resFormattor(ErrNone, result))
         return

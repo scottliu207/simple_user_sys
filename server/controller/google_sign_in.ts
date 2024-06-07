@@ -1,9 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { ErrSomethingWentWrong } from '../err/error';
 import { resFormattor } from '../utils/res_formatter';
-import { google } from 'googleapis'
 import crypto from 'crypto'
-import { OAuth2ClientOptions } from 'google-auth-library';
+import { OAuth2Client, OAuth2ClientOptions } from 'google-auth-library';
 
 /**
  * Handles user login.
@@ -21,7 +20,9 @@ export async function googleSignIn(req: Request, res: Response, next: NextFuncti
       issuers: [process.env.DOMIN!],
     }
 
-    const oauth2Client = new google.auth.OAuth2(option);
+    // const oauth2Client = new google.auth.OAuth2(option);
+    const oauth2Client = new OAuth2Client(option);
+
 
     const state = crypto.randomBytes(32).toString('hex');
 
@@ -30,7 +31,7 @@ export async function googleSignIn(req: Request, res: Response, next: NextFuncti
       include_granted_scopes: true,
       state: state,
       scope: ['openid profile email'],
-      prompt: 'consent'
+      prompt: 'select_account'
     });
 
     res.redirect(authorizationUrl);

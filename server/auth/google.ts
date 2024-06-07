@@ -1,5 +1,6 @@
 
-import { OAuth2Client, OAuth2ClientOptions, TokenPayload, VerifyIdTokenOptions } from 'google-auth-library/';
+import { OAuth2Client, OAuth2ClientOptions, VerifyIdTokenOptions } from 'google-auth-library/';
+import { AuthStrategy, StrategyTokenPayload, StrategyUserProfile } from './base';
 
 const option: OAuth2ClientOptions = {
   clientId: process.env.GOOGLE_CLIENT_ID,
@@ -7,59 +8,63 @@ const option: OAuth2ClientOptions = {
   redirectUri: process.env.GOOGLE_REDIRECT_URI,
 }
 
-const client = new OAuth2Client(option)
 
-export async function verify(token: string): Promise<TokenPayload | null> {
-  const verifyOpt: VerifyIdTokenOptions = {
-    idToken: token,
-    audience: process.env.GOOGLE_CLIENT_ID,
+/**
+ * Google auth for strategy pattern
+ */
+export class AuthGoogle implements AuthStrategy {
+  private client = new OAuth2Client(option)
+  async getToken(code: string): Promise<StrategyTokenPayload> {
+    try {
+
+      const { tokens } = await this.client.getToken(code)
+      this.client.setCredentials(tokens)
+      return { accessToken: tokens.access_token!, refreshToken: tokens.refresh_token!, idToken: tokens.id_token! }
+    } catch (error) {
+      throw new Error(`Failed to exchange token from Google, ${error}`)
+    }
   }
 
-  const ticket = await client.verifyIdToken(verifyOpt);
-  const payload = ticket.getPayload();
-  if (!payload) {
-    throw new Error('Google payload not found.')
+  async getUserProfile(token: string): Promise<StrategyUserProfile | null> {
+    const verifyOpt: VerifyIdTokenOptions = {
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    }
+
+    const ticket = await this.client.verifyIdToken(verifyOpt);
+    const payload = ticket.getPayload();
+    if (!payload) {
+      return null
+    }
+
+    return payload
   }
-  const userid = payload['sub'];
-  console.log(userid)
-  return payload
+
+  async refreshToken(refreshToken: string): Promise<string | null> {
+    try {
+      this.client.setCredentials({ refresh_token: refreshToken })
+      const res = await this.client.refreshAccessToken()
+      if (!res.credentials.access_token) {
+        return null
+      }
+
+      return res.credentials.access_token
+    } catch (error: any) {
+      if (error.response && error.response.status === 400) {
+        return null
+      }
+      throw new Error(`Failed to exchange token from Google, ${error}`)
+    }
+  }
+
+  async revoke(accessToken: string): Promise<void> {
+    try {
+      const client = new OAuth2Client(option)
+      client.setCredentials({ access_token: accessToken })
+      await client.revokeCredentials()
+    } catch (error: any) {
+      console.log(`Failed to revoke Google credentials, ${error}`)
+      return
+    }
+  }
 }
-
-export async function getTokens(code: string): Promise<{ access_token: string; refresh_token: string, id_token: string }> {
-  try {
-    const { tokens } = await client.getToken(code)
-    client.setCredentials(tokens)
-    console.log(tokens)
-
-    return { access_token: tokens.access_token!, refresh_token: tokens.refresh_token!, id_token: tokens.id_token! }
-  } catch (error) {
-    throw new Error(`Failed to exchange token from Google, ${error}`)
-  }
-}
-
-// export async function refreshTokens(token: string): Promise<{ access_token: string; refresh_token: string, id_token: string }> {
-//   try {
-//     const res = await client.refreshAccessToken()
-//     res
-//     client.setCredentials(tokens)
-//     console.log(tokens)
-
-//     return { access_token: tokens.access_token!, refresh_token: tokens.refresh_token!, id_token: tokens.id_token! }
-//   } catch (error) {
-//     throw new Error(`Failed to exchange token from Google, ${error}`)
-//   }
-// }
-
-// export async function revokeToken(token: string): Promise<{ access_token: string; refresh_token: string, id_token: string }> {
-//   try {
-//     const { tokens } = await client.revokeToken(token)
-//     client.setCredentials(tokens)
-//     console.log(tokens)
-
-//     return { access_token: tokens.access_token!, refresh_token: tokens.refresh_token!, id_token: tokens.id_token! }
-//   } catch (error) {
-//     throw new Error(`Failed to exchange token from Google, ${error}`)
-//   }
-// }
-
-
