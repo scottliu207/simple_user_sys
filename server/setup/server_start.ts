@@ -11,7 +11,7 @@ import { callbackRouteV1 } from '../routes/callback';
 
 const app = express();
 
-const port: number = process.env.SERVER_PORT ? +process.env.SERVER_PORT : 3000;
+const port: number = process.env.PORT ? +process.env.PORT : 3000;
 
 export async function start() {
     try {
