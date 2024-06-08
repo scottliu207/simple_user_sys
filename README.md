@@ -1,13 +1,13 @@
 # Simple User Sys
-This simple app side project allows user to sign in and view users dashboard, statistic. 
+This simple app side project allows users to sign in and view the user dashboard and statistics.
 
-Sign up will send a verification email to the user, use the token provided in the email to send request to `/api/user/v1/email/verify`  to verify.
+Signing up will send a verification email to the user. Use the token provided in the email to send a request to `/api/user/v1/email/verify` to verify the email.
 
-Users activities are stored in Redis, and backed up to MySQL by  scheduler, you can decide when it should run by change the env variable `SCHEDULE_SETTING`.
+User activities are stored in Redis and backed up to MySQL by a scheduler. You can decide when it should run by changing the env variable `SCHEDULE_SETTING`.
 
-## Prerequest
-- This app has wrap up into docker image, before using it, please make sure you've installed docker on your local environment.
-- Creates a `.env` file on the root, and it must contains the followings:
+## Prerequisites
+- This app is wrapped in a Docker image. Before using it, please make sure you've installed Docker on your local environment.
+- Create a `.env` file at the root, and it must contain the following:
 ```
 DOMAIN={Server Domain}
 EMAIL_REDIRECT= {Verification Email URI}
@@ -21,9 +21,9 @@ REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
 REDIS_DB=0
 REDIS_USER={Redis Account}
-// leave it empty if you don't need it
+// leave empty if you don't need it
 REDIS_PASSWORD={Redis Password}
-// leave it empty if you don't need it
+// leave empty if you don't need it
 ACCESS_TOKEN_EXPIRE=30m
 REFRESH_TOKEN_EXPIRE=30d
 EMAIL_TOKEN_EXPIRE=15m
@@ -43,32 +43,33 @@ SCHEDULE_SETTING=*/15 * * * *
 ## Basic
  
 	./run.sh -u  
-Runs up all necessary docker containers, it will start to pull MySQL, Redis and Simple User App images if it did not find any in your local environment.
+Runs all necessary Docker containers. It will start to pull MySQL, Redis, and Simple User App images if it does not find any in your local environment.
 
 	./run.sh -d
- Shuts down the docker containers
+ Shuts down the Docker containers.
 
 	./run.sh -b
-Builds docker images from this current version.
+Builds Docker images from the current version.
 
 	/.run.sh -h
 Gets more info about this script.
 
 ## Current Feature
 - Users
-	- Allow users to sign up and verify by email.
-	- Allows users to sign in with Basic-Auth and Google Oauth2.
-	- Signs out and revoke user's credentials.
+	-   Allows users to sign up and verify by email.
+	-   Allows users to sign in with Basic Auth and Google OAuth2.
+	-   Signs out and revokes user credentials.
 - User dashboard
-	- Own profile 
-		- Allows user to update their username and password.
-	-	User list
-		-	Retrieves user list with searching and pagenating.
-	-	User statistic
-		-	Shows total user sign up. 
-		-	Shows total number of active users today.
-		-	Shows average number of active users in the last seven days.
+	-  Own profile
+	    - Shows user's profile
+	    - Allows users to update their username and password.
+	-  User list
+	    -  Retrieves user list with search and pagination.
+	-  User statistics
+	    -  Shows total user sign-ups.
+	    -  Shows the total number of active users today.
+	    -  Shows the average number of active users in the last seven days.
 
 ## Todo
-- Recovery mech
-- Log mech middleware
+-  Recovery mechanism
+-  Log mechanism middleware
