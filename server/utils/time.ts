@@ -26,7 +26,7 @@ export function GetDayStartAndEnd(current: Date): Day {
     const start = new Date(current);
     start.setUTCHours(0, 0, 0, 0);
     const end = new Date(current);
-    end.setUTCHours(23, 59, 59, 999); // Changed 0 to 999 for milliseconds
+    end.setUTCHours(23, 59, 59, 0); 
     return {
         startTime: start,
         endTime: end,

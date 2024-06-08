@@ -55,7 +55,6 @@ export async function logout(req: CustomRequest, res: Response, next: NextFuncti
             await redisClearUserToken(user.id, userToken);
         }
 
-        res.clearCookie(process.env.USER_SESSION_NAME!);
         res.json(resFormatter(ErrNone));
     } catch (error: unknown) {
         console.log('Unknown error occurred: ' + error);

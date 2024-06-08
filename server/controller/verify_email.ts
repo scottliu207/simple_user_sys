@@ -21,15 +21,14 @@ export async function verifyEmail(req: Request, res: Response, next: NextFunctio
             res.json(resFormatter(ErrInvalidRequest.newMsg('Token is required.')));
             return;
         }
-
+        
         const userId = verifyJwtToken(token);
-
+        
         const counts = await getEmailToken(userId);
         if (counts < 1) {
-            res.json(resFormatter(ErrInvalidRequest.newMsg('Invalid token.')));
+            res.json(resFormatter(ErrInvalidRequest));
             return;
         }
-
         const getUserOpt: GetUserOption = {
             userId: userId,
         };

@@ -24,12 +24,12 @@ export async function backUpUserActivities() {
         if (!userActivity) {
           continue;
         }
-
+        
         const updOpt: UpdUserOption = {
           lastSessionTime: userActivity.timestamp,
         };
         await updateUser(user.id, updOpt);
-
+        
         const day = GetDayStartAndEnd(new Date(userActivity.timestamp));
         const reportData: UserActivityReport = {
           userId: user.id,

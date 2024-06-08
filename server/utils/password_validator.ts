@@ -6,7 +6,7 @@ const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
  * @returns {boolean} - Whether the password is valid.
  */
 export function validatePassword(password: string): boolean {
-    if (password.length < 8) {
+    if (password.length < 8 || password.length > 100) {
         return false;
     }
 

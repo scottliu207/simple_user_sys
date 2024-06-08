@@ -5,7 +5,7 @@ import { resFormatter } from '../utils/res_formatter';
 import { getOneUser, updateUser } from '../dao/sql/profile';
 import { verifyPassword } from '../utils/hash';
 import { GetUserOption, UpdUserOption } from '../model/sql_option';
-import { AccountType } from '../enum/user';
+import { AccountType, UserStatus } from '../enum/user';
 import { generateToken } from '../utils/token';
 import { Token, redisGetUserToken, redisSetUserToken } from '../dao/cache/user_token';
 import { createLoginRecord } from '../dao/sql/login_record';
@@ -64,7 +64,9 @@ export async function signIn(req: Request, res: Response, next: NextFunction): P
 
         await updateUser(user.id, updOpt);
         await createLoginRecord(user.id);
-        await redisSetUserActivity(user.id);
+        if (user.status==UserStatus.ENABLE) {
+            await redisSetUserActivity(user.id);
+        }
 
         const result: SignInResult = {
             accessToken: accessToken.token,

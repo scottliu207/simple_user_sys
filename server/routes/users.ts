@@ -19,7 +19,7 @@ const userRouteV1: Router = express.Router();
 userRouteV1.post('/signup', signUp);
 userRouteV1.post('/signin', signIn);
 userRouteV1.get('/google/signin', googleSignIn);
-userRouteV1.post('/logout', authenticator, logout);
+userRouteV1.get('/logout', authenticator, logout);
 userRouteV1.get('/profile', authenticator, userSessionTracker, getProfile);
 userRouteV1.post('/profile/update', authenticator, userSessionTracker, updateProfile);
 userRouteV1.post('/password/reset', authenticator, userSessionTracker, resetPassword);
