@@ -1,10 +1,9 @@
 import { Response, NextFunction } from 'express';
 import { CustomRequest, UpdateProfileRequest } from '../model/request';
-import { ErrDataNotFound, ErrInvalidRequest, ErrInvalidUser, ErrNone, ErrNotAuthorized, ErrSomethingWentWrong } from '../err/error';
+import { ErrInvalidRequest, ErrNone, ErrNotAuthorized, ErrSomethingWentWrong } from '../err/error';
 import { resFormatter } from '../utils/res_formatter';
-import { getOneUser, updateUser } from '../dao/sql/profile';
-import { UserStatus } from '../enum/user';
-import { GetUserOption, UpdUserOption } from '../model/sql_option';
+import { updateUser } from '../dao/sql/profile';
+import { UpdUserOption } from '../model/sql_option';
 
 /**
  * Handles profile update.
@@ -16,23 +15,8 @@ export async function updateProfile(req: CustomRequest, res: Response, next: Nex
     try {
         const { username } = req.body as UpdateProfileRequest;
 
-        if (!req.userId) {
+        if (!req.user) {
             res.json(resFormatter(ErrNotAuthorized));
-            return;
-        }
-
-        const getUserOpt: GetUserOption = {
-            userId: req.userId,
-        };
-
-        const user = await getOneUser(getUserOpt);
-        if (!user) {
-            res.json(resFormatter(ErrDataNotFound.newMsg('User not found.')));
-            return;
-        }
-
-        if (user.status !== UserStatus.ENABLE) {
-            res.json(resFormatter(ErrInvalidUser));
             return;
         }
 
@@ -45,7 +29,7 @@ export async function updateProfile(req: CustomRequest, res: Response, next: Nex
             username: username,
         };
 
-        await updateUser(user.id, updOpt);
+        await updateUser(req.user.id, updOpt);
 
         res.json(resFormatter(ErrNone));
     } catch (error: unknown) {

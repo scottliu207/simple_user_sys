@@ -1,9 +1,11 @@
 import { Request } from 'express';
 import { UserStatus } from '../enum/user';
+import { UserProfile } from './user_profile';
 
 export interface CustomRequest extends Request {
     accessToken?: string;
     userId?: string;
+    user?: UserProfile;
 }
 
 export type SignUpRequest = {

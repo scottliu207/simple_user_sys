@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { VerifyTokenRequest } from '../model/request';
-import { ErrDataNotFound, ErrInvalidRequest, ErrNone, ErrSomethingWentWrong } from '../err/error';
+import { CustomRequest, VerifyTokenRequest } from '../model/request';
+import { ErrDataNotFound, ErrInvalidRequest, ErrInvalidToken, ErrNone, ErrNotAuthorized, ErrSomethingWentWrong } from '../err/error';
 import { resFormatter } from '../utils/res_formatter';
 import { getOneUser, updateUser } from '../dao/sql/profile';
 import { GetUserOption, UpdUserOption } from '../model/sql_option';
@@ -14,16 +14,31 @@ import { delEmailToken, getEmailToken } from '../dao/cache/email_token';
  * @param res - Express response object.
  * @param next - Express next middleware function.
  */
-export async function verifyEmail(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function verifyEmail(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
     try {
         const { token } = req.body as VerifyTokenRequest;
+
+        if (!req.userId) {
+            res.json(resFormatter(ErrNotAuthorized));
+            return;
+        }
+
         if (!token) {
             res.json(resFormatter(ErrInvalidRequest.newMsg('Token is required.')));
             return;
         }
-        
+
         const userId = verifyJwtToken(token);
-        
+        if (!userId) {
+            res.json(resFormatter(ErrInvalidToken));
+            return;
+        }
+
+        if (userId !== req.userId) {
+            res.json(resFormatter(ErrInvalidToken));
+            return;
+        }
+
         const counts = await getEmailToken(userId);
         if (counts < 1) {
             res.json(resFormatter(ErrInvalidRequest));

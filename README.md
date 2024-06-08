@@ -1,89 +1,74 @@
-# simple_user_sys
+# Simple User Sys
+This simple app side project allows user to sign in and view users dashboard, statistic. 
 
-## Assessment
+Sign up will send a verification email to the user, use the token provided in the email to send request to `/api/user/v1/email/verify`  to verify.
 
-Create a simple app where users can sign up and sign in from a landing page into a simple dashboard. The landing page can be blank with only two separate links to **“Sign Up”** and **“Sign In”**. The simple dashboard can only be accessed after the user signs up or signs in.
+Users activities are stored in Redis, and backed up to MySQL by  scheduler, you can decide when it should run by change the env variable `SCHEDULE_SETTING`.
 
-### Part 1: API
+## Prerequest
+- This app has wrap up into docker image, before using it, please make sure you've installed docker on your local environment.
+- Creates a `.env` file on the root, and it must contains the followings:
+```
+DOMAIN={Server Domain}
+EMAIL_REDIRECT= {Verification Email URI}
+MYSQL_HOST=localhost
+MYSQL_ACCOUNT=root
+MYSQL_PASSWORD=root
+MYSQL_PORT=3306
+MYSQL_DATABASE=user_db
+MYSQL_TIMEZONE=+00:00
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
+REDIS_DB=0
+REDIS_USER={Redis Account}
+// leave it empty if you don't need it
+REDIS_PASSWORD={Redis Password}
+// leave it empty if you don't need it
+ACCESS_TOKEN_EXPIRE=30m
+REFRESH_TOKEN_EXPIRE=30d
+EMAIL_TOKEN_EXPIRE=15m
+EMAIL_MAX_TRY=5
+SALT_ROUND=10
+JWT_SECRET={Your Secret}
+JWT_AUDIENCE=http://localhost:3000
+JWT_ISSUER=http://localhost:3000/api
+SENDGRID_API_KEY={Your SendGrid Secret}
+SENDGRID_FROM={Your SendGrid Email Setting}
+GOOGLE_CLIENT_ID={Your Google Client ID}
+GOOGLE_CLIENT_SECRET={Your Google Client Secret}
+GOOGLE_REDIRECT_URI={Your Google Redirect URI Setting}
+SCHEDULE_SETTING=*/15 * * * *
+```
 
-- **Sign Up [50 points]**
-    
-    The Sign Up page should allow users 2 options to create an account:
-    
-    (1) Email and user defined password
-    
-    (2) Google OAuth
-    
-    You can use any third party tool, library, or API for this. In fact, to save time, it is highly recommended that you use a third party auth API. Create your own guest or trial accounts with third party tools. We only need a live demo app to test for 1 or 2 weeks.
-    
-- **User Defined Password [20 points]**
-    
-    The user defined password must be entered twice and match. In addition, the password must be validated by the following conditions.
-    
-    - contains at least one lower character
-    - contains at least one upper character
-    - contains at least one digit character
-    - contains at least one special character
-    - contains at least 8 characters
-- **Email Verification [40 points]**
-    
-    For the user defined password, after the validated password is entered, your back-end app must send an verification email to the email address provided. The email must contain a link, that if the user clicks the link, their email will be verified in the back-end and the user will be directed to a simple dashboard in a new browser.
-    
-    Only accounts that have email verified can access the simple dashboard. Users that have not verified email will only see a button or link that says “Resend Email Verification”, and clicking on this link will resend the same email verification.
-    
-    Only accounts created via email and password must be verified with email verification. Google OAuth sign up account does not need to send email verification, and can immediately access the simple dashboard.
-    
-    Like with authentication, you can use any third party email sending tool, library, or API. Create your own guest or trial accounts. We only need a live demo app to test for 1 or 2 weeks.
-    
-- **Login [10 points]**
-    
-    We will allow users to login through the 2 methods that users can sign up with:
-    
-    (1) email and user defined password
-    
-    (2) Google OAuth
-    
-    You can use any third party tool, library, or API for this feature.
-    
-- **User Profile [20 points]**
-    
-    The user profile will display the user’s email and name (from Google OAuth). In addition, the user can reset their name. Everytime the user goes to user profile, the user should see the name they have chosen.
-    
-- **Reset Password [30 points]**
-    
-    In the simple dashboard, add the ability to reset password. The password must meet the same criterias as defined previously. In addition, the user must enter 3 text input boxes:
-    
-    1. Old password
-    2. New password
-    3. Re-enter new password
-- **Cookies and Logout [50 points]**
-    
-    Store cookies in the browser so that next time a logged in user returns to your site, the user will be automatically logged in. Add a logout feature in the user profile so that cookies can be cleared.
-    
-- **User Database Dashboard [50 points]**
-    
-    Create a dashboard with a list of all users that have signed up to your app. For each user, show the following information:
-    
-    1. Timestamp of user sign up.
-    2. Number of times logged in.
-    3. Timestamp of the last user session. For users with cookies, session and login may be different, since the user may not need to log in to start a new session.
+## Basic
+ 
+	./run.sh -u  
+Runs up all necessary docker containers, it will start to pull MySQL, Redis and Simple User App images if it did not find any in your local environment.
 
-       - Tracks api calls
-       - a middleware to update the timestamp for each user on redis 
-       - every 15m launch a cronjob to scrap the last session from redis to the database
-       - schema will be like user_id, start_time, end_time for tracking a user session per day.
-       - when scraping, update per day's session, also user_profile.last_session_time
-       
+	./run.sh -d
+ Shuts down the docker containers
 
-- **User Statistics [30 points]**
-    
-    At the top of the user database dashboard, show the following statistics:
-    
-    1. Total number of users who have signed up.
-    2. Total number of users with active sessions today.
-    3. Average number of active session users in the last 7 days rolling.
+	./run.sh -b
+Builds docker images from this current version.
 
+	/.run.sh -h
+Gets more info about this script.
 
+## Current Feature
+- Users
+	- Allow users to sign up and verify by email.
+	- Allows users to sign in with Basic-Auth and Google Oauth2.
+	- Signs out and revoke user's credentials.
+- User dashboard
+	- Own profile 
+		- Allows user to update their username and password.
+	-	User list
+		-	Retrieves user list with searching and pagenating.
+	-	User statistic
+		-	Shows total user sign up. 
+		-	Shows total number of active users today.
+		-	Shows average number of active users in the last seven days.
 
-    // todo: recovery mechanism
-// todo: log middleware
+## Todo
+- Recovery mech
+- Log mech middleware

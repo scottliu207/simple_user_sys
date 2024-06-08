@@ -1,4 +1,4 @@
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import jwt, { JsonWebTokenError, JwtPayload } from 'jsonwebtoken';
 import { genUuid } from './gen_uuid';
 
 /**
@@ -21,9 +21,16 @@ export function generateJwtToken(userId: string): string {
  * @param token - User's session ID.
  * @returns {string} - User's ID.
  */
-export function verifyJwtToken(token: string): string {
-    const payload = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
-    return payload.userId;
+export function verifyJwtToken(token: string): string | null {
+    try {
+        const payload = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
+        return payload.userId;
+    } catch (error) {
+        if (error instanceof JsonWebTokenError) {
+            return null
+        }
+        throw new Error(`Failed to verify JwtToken, ${error}`)
+    }
 }
 
 /**

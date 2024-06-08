@@ -69,16 +69,6 @@ export async function signUp(req: Request, res: Response, next: NextFunction): P
             return;
         }
 
-        const nameOpt: GetUserOption = {
-            username: username,
-        };
-
-        const usernameExist = await getOneUser(nameOpt);
-        if (usernameExist) {
-            res.json(resFormatter(ErrDataAlreadyExists.newMsg('Username already exists.')));
-            return;
-        }
-
         const hashedPassword = await hashPassword(password);
         const userId = genUuid();
         const emailToken = generateJwtToken(userId);

@@ -2,11 +2,11 @@ import { Response, NextFunction } from 'express';
 import { CustomRequest, ResetPasswordRequest } from '../model/request';
 import { ErrDataNotFound, ErrInvalidAccountType, ErrInvalidPassword, ErrInvalidRequest, ErrInvalidUser, ErrNone, ErrNotAuthorized, ErrPasswordNotMatch, ErrSomethingWentWrong } from '../err/error';
 import { resFormatter } from '../utils/res_formatter';
-import { getOneUser, updateUser } from '../dao/sql/profile';
+import { updateUser } from '../dao/sql/profile';
 import { hashPassword, verifyPassword } from '../utils/hash';
-import { GetUserOption, UpdUserOption } from '../model/sql_option';
+import { UpdUserOption } from '../model/sql_option';
 import { validatePassword } from '../utils/password_validator';
-import { AccountType, UserStatus } from '../enum/user';
+import { AccountType } from '../enum/user';
 
 /**
  * Handles password reset.
@@ -18,27 +18,12 @@ export async function resetPassword(req: CustomRequest, res: Response, next: Nex
     try {
         const { oldPassword, newPassword, newConfirmPassword } = req.body as ResetPasswordRequest;
 
-        if (!req.userId) {
+        if (!req.user) {
             res.json(resFormatter(ErrNotAuthorized));
             return;
         }
 
-        const getUserOpt: GetUserOption = {
-            userId: req.userId,
-        };
-
-        const user = await getOneUser(getUserOpt);
-        if (!user) {
-            res.json(resFormatter(ErrDataNotFound.newMsg('User not found.')));
-            return;
-        }
-
-        if (user.status !== UserStatus.ENABLE) {
-            res.json(resFormatter(ErrInvalidUser));
-            return;
-        }
-
-        if (user.accountType !== AccountType.EMAIL) {
+        if (req.user.accountType !== AccountType.EMAIL) {
             res.json(resFormatter(ErrInvalidAccountType));
             return;
         }
@@ -73,7 +58,7 @@ export async function resetPassword(req: CustomRequest, res: Response, next: Nex
             return;
         }
 
-        const match = await verifyPassword(oldPassword, user.passphrase!);
+        const match = await verifyPassword(oldPassword, req.user.passphrase!);
         if (!match) {
             res.json(resFormatter(ErrDataNotFound.newMsg('Password is incorrect.')));
             return;
@@ -85,7 +70,7 @@ export async function resetPassword(req: CustomRequest, res: Response, next: Nex
             passphrase: hashedPassword,
         };
 
-        await updateUser(user.id, updOpt);
+        await updateUser(req.user.id, updOpt);
 
         res.json(resFormatter(ErrNone));
     } catch (error: unknown) {

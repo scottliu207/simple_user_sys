@@ -13,6 +13,7 @@ import { userSessionTracker } from '../middleware/user_session_tracker';
 import { getUserList } from '../controller/get_users';
 import { getUserReport } from '../controller/get_user_report';
 import { googleSignIn } from '../controller/google_sign_in';
+import { userStatusValidation } from '../middleware/check_user_status';
 
 const userRouteV1: Router = express.Router();
 
@@ -21,12 +22,12 @@ userRouteV1.post('/signin', signIn);
 userRouteV1.get('/google/signin', googleSignIn);
 userRouteV1.get('/logout', authenticator, logout);
 userRouteV1.get('/profile', authenticator, userSessionTracker, getProfile);
-userRouteV1.post('/profile/update', authenticator, userSessionTracker, updateProfile);
-userRouteV1.post('/password/reset', authenticator, userSessionTracker, resetPassword);
+userRouteV1.post('/profile/update', authenticator, userStatusValidation, userSessionTracker, updateProfile);
+userRouteV1.post('/password/reset', authenticator, userStatusValidation, userSessionTracker, resetPassword);
 userRouteV1.post('/email/verify', authenticator, verifyEmail);
 userRouteV1.get('/email/resend', authenticator, resendEmail);
 userRouteV1.post('/token/refresh', refreshToken);
-userRouteV1.get('/user/list', authenticator, getUserList);
-userRouteV1.get('/user/report', authenticator, getUserReport);
+userRouteV1.get('/user/list', authenticator, userStatusValidation, getUserList);
+userRouteV1.get('/user/report', authenticator, userStatusValidation, getUserReport);
 
 export { userRouteV1 };
