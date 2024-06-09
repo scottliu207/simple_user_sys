@@ -29,7 +29,7 @@ export async function start() {
     }
 
     var corsOptions: CorsOptions = {
-        origin: [process.env.DOMAIN!],
+        origin: process.env.DOMAIN!,
         methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
         allowedHeaders: ['Authorization', 'Content-Type'],
         preflightContinue: true,
