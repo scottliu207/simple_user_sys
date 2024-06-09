@@ -1,5 +1,5 @@
 # Simple User Sys
-This simple app side project allows users to sign in and view the user dashboard and statistics.
+This simple app side project allows users to sign in and view basic users dashboard and statistics.
 
 Signing up will send a verification email to the user. Use the token provided in the email to send a request to `/api/user/v1/email/verify` to verify the email.
 
