@@ -1,6 +1,6 @@
 import { Response, NextFunction } from 'express';
 import { CustomRequest } from '../model/request';
-import { ErrNone, ErrNotAuthorized, ErrSomethingWentWrong } from '../err/error';
+import { ErrDataNotFound, ErrNone, ErrNotAuthorized, ErrSomethingWentWrong } from '../err/error';
 import { resFormatter } from '../utils/res_formatter';
 import { getUserTokenKey, redisClearUserToken, redisGetUserToken } from '../dao/cache/user_token';
 import { redisDel } from '../dao/cache/basic';
@@ -8,6 +8,8 @@ import { AccountType } from '../enum/user';
 import { AuthStrategy } from '../auth/base';
 import { AuthBasic } from '../auth/basic';
 import { AuthGoogle } from '../auth/google';
+import { GetUserOption } from '../model/sql_option';
+import { getOneUser } from '../dao/sql/profile';
 
 /**
  * Handles user logout.
@@ -17,13 +19,24 @@ import { AuthGoogle } from '../auth/google';
  */
 export async function logout(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-        if (!req.user) {
+        if (!req.userId) {
             res.json(resFormatter(ErrNotAuthorized));
             return;
         }
 
+
+        const getUserOpt: GetUserOption = {
+            userId: req.userId,
+        };
+
+        const user = await getOneUser(getUserOpt);
+        if (!user) {
+            res.json(resFormatter(ErrDataNotFound.newMsg('User not found.')));
+            return;
+        }
+
         let auth: AuthStrategy;
-        switch (req.user.accountType) {
+        switch (user.accountType) {
             case AccountType.EMAIL:
                 auth = new AuthBasic();
                 break;
@@ -31,16 +44,16 @@ export async function logout(req: CustomRequest, res: Response, next: NextFuncti
                 auth = new AuthGoogle();
                 break;
             default:
-                res.json(resFormatter(ErrSomethingWentWrong.newMsg(`Unknown account type: ${req.user.accountType}`)));
+                res.json(resFormatter(ErrSomethingWentWrong.newMsg(`Unknown account type: ${user.accountType}`)));
                 return;
         }
 
-        const userToken = await redisGetUserToken(req.user.id);
+        const userToken = await redisGetUserToken(user.id);
         if (userToken) {
             await auth.revoke(userToken.accessToken);
-            const key = getUserTokenKey(req.user.id);
+            const key = getUserTokenKey(user.id);
             await redisDel(key);
-            await redisClearUserToken(req.user.id, userToken);
+            await redisClearUserToken(user.id, userToken);
         }
 
         res.json(resFormatter(ErrNone));
