@@ -1,4 +1,5 @@
 import express from 'express';
+import cors, { CorsOptions } from 'cors';
 import cookieParser from 'cookie-parser';
 import schedule from 'node-schedule';
 import { userRouteV1 } from '../routes/users';
@@ -27,10 +28,18 @@ export async function start() {
         process.exit(1);
     }
 
+    var corsOptions: CorsOptions = {
+        origin: [process.env.DOMAIN!],
+        methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Authorization', 'Content-Type'],
+        preflightContinue: true,
+        credentials: true,
+    }
+    app.use(cors(corsOptions))
+    app.options('*', cors(corsOptions))
     app.use(express.json());
     app.use(cookieParser());
     app.use(responseHandler);
-
     app.use(extractToken);
     app.use('/api/user/v1', userRouteV1);
     app.use('/api/callback/v1', callbackRouteV1);
