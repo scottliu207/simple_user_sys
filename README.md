@@ -7,9 +7,12 @@ User activities are stored in Redis and backed up to MySQL by a scheduler. You c
 
 ## Prerequisites
 - This app is wrapped in a Docker image. Before using it, please make sure you've installed Docker on your local environment.
+- Prepare your own Google developer and SendGrid API settings.
 - Create a `.env` file at the root, and it must contain the following:
 ```
-DOMAIN={Server Domain}
+DOMAIN=http://localhost:3000
+ORIGIN=http://localhost:3000
+// cors origin
 EMAIL_REDIRECT= {Verification Email URI}
 MYSQL_HOST=localhost
 MYSQL_ACCOUNT=root
