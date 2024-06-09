@@ -28,7 +28,7 @@ export async function googleSignIn(req: Request, res: Response, next: NextFuncti
       include_granted_scopes: true,
       state: state,
       scope: ['openid', 'profile', 'email'],
-      prompt: 'select_account',
+      prompt: 'consent',
     });
 
     res.redirect(authorizationUrl);
