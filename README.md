@@ -76,3 +76,41 @@ Gets more info about this script.
 ## Todo
 -  Recovery mechanism
 -  Log mechanism middleware
+
+## FlowChart
+### Sign Up
+```mermaid
+graph LR
+A[Sign Up] --> B{Is Email Exist} 
+B--YES--> C[Return Error] 
+B--NO--> D{Verify Email}
+D--SUCCESS--> E[Chage User Status]
+D--FAIL --> F[Return Error]
+```
+
+### Sign In
+```mermaid
+graph LR
+A[Sign In] -->B{Account Verify}
+B-- SUCCESS --> C[Return Token]
+B-- FAIL--> D[Return Error]
+```
+
+### Google Sign In
+```mermaid
+graph LR
+A[Sign In With Google] -->B{Google Authentication}
+B-- SUCCESS --> E[Google Callback] -->
+F{Email Exist}
+F--Yes--> G[Sign In] --> H[Return Token]
+F--No--> I[Create Account] --> H[Return Token]
+B-- FAIL--> D[Return]
+```
+
+### Refresh Token
+```mermaid
+graph LR
+A[Refresh Token] -->B{Is Refresh Token Valid}
+B-- YES--> C[Return New Access Token]
+B-- NO--> D[Return Error]
+```
