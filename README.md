@@ -101,9 +101,9 @@ B-- FAIL--> D[Return Error]
 graph LR
 A[Sign In With Google] -->B{Google Authentication}
 B-- SUCCESS --> E[Google Callback] -->
-F{Email Exist}
-F--Yes--> G[Sign In] --> H[Return Token]
-F--No--> I[Create Account] --> H[Return Token]
+F{Is Email Exist}
+F--YES--> G[Sign In] --> H[Return Token]
+F--NO--> I[Create Account] --> H[Return Token]
 B-- FAIL--> D[Return]
 ```
 
