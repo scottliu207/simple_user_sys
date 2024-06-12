@@ -111,6 +111,8 @@ B-- FAIL--> D[Return]
 ```mermaid
 graph LR
 A[Refresh Token] -->B{Is Refresh Token Valid}
-B-- YES--> C[Return New Access Token]
-B-- NO--> D[Return Error]
+B-- YES--> C{Account Type}
+C--Email-->D[Refresh]-->F[Return New Access Token]
+C--Google-->E[Refresh From Google]-->F[Return New Access Token]
+B-- NO--> Q[Return Error]
 ```
