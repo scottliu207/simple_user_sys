@@ -43,7 +43,7 @@ GOOGLE_REDIRECT_URI={Your Google Redirect URI Setting}
 SCHEDULE_SETTING=*/15 * * * *
 ```
 
-## Basic
+## Basic Usage
  
 	./run.sh -u  
 Runs all necessary Docker containers. It will start to pull MySQL, Redis, and Simple User App images if it does not find any in your local environment.
@@ -70,8 +70,8 @@ Gets more info about this script.
 	    -  Retrieves user list with search and pagination.
 	-  User statistics
 	    -  Shows total user sign-ups.
-	    -  Shows the total number of active users today.
-	    -  Shows the average number of active users in the last seven days.
+	    -  Shows the total number of active users today, number updates every 15 minutes.
+	    -  Shows the average number of active users in the last seven days, number updates every 15 minutes.
 
 ## Todo
 -  Recovery mechanism
