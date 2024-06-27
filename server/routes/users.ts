@@ -27,7 +27,7 @@ userRouteV1.post('/password/reset', authenticator, userStatusValidation, userSes
 userRouteV1.post('/email/verify', authenticator, verifyEmail);
 userRouteV1.get('/email/resend', authenticator, resendEmail);
 userRouteV1.post('/token/refresh', refreshToken);
-userRouteV1.get('/user/list', authenticator, userStatusValidation, getUserList);
+userRouteV1.post('/user/list', authenticator, userStatusValidation, getUserList);
 userRouteV1.get('/user/report', authenticator, userStatusValidation, getUserReport);
 
 export { userRouteV1 };
